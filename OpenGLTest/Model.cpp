@@ -112,7 +112,6 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
     {
         aiString str;
         mat->GetTexture(type, i, &str);
-        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         bool skip = false;
         for (unsigned int j = 0; j < textures_loaded.size(); j++)
         {
@@ -124,11 +123,11 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
             }
         }
         if (!skip)
-        {   // if texture hasn't been loaded already, load it
+        { 
             textures.push_back({ std::string{directory + '/' + str.C_Str()}.c_str(),str.C_Str() });
             textures.back().SetType(typeName);
             textures_loaded.push_back(textures.back());
-          }
+         }
     }
     return textures;
 }
@@ -157,7 +156,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
         }
 
         // texture coordinates
-        if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+        if (mesh->mTextureCoords[0]) //Check if got texturre coords
         {
             glm::vec2 vec;
             // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
@@ -190,12 +189,6 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     } 
     // process materials
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-    // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-    // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-    // Same applies to other texture as the following list summarizes:
-    // diffuse: texture_diffuseN
-    // specular: texture_specularN
-    // normal: texture_normalN
 
     // 1. diffuse maps
     std:: vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, DIFFUSE);
