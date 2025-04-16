@@ -1,0 +1,6 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.29/Modules/FindDoxygen.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/FindPackageMessage.cmake
+C:/sandbox/OpenGLSchool/Tut4/lib/glfw/docs/CMakeLists.txt
+C:/sandbox/OpenGLSchool/Tut4/lib/glfw/docs/Doxyfile.in

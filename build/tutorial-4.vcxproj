@@ -1,0 +1,359 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4A320729-3CD1-3B59-96CE-43B9134B6B85}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>tutorial-4</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\sandbox\OpenGLSchool\Tut4\build\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tutorial-4.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tutorial-4</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\sandbox\OpenGLSchool\Tut4\build\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tutorial-4.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tutorial-4</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\sandbox\OpenGLSchool\Tut4\build\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">tutorial-4.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">tutorial-4</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\sandbox\OpenGLSchool\Tut4\build\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">tutorial-4.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">tutorial-4</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;USE_CSD2101_AUTOMATION=0;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;USE_CSD2101_AUTOMATION=0;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>lib\glfw\src\Debug\glfw3.lib;lib\glew\lib\Debug\glewd.lib;Debug\csd2101.lib;lib\glfw\src\Debug\glfw3.lib;lib\glew\lib\Debug\glewd.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/sandbox/OpenGLSchool/Tut4/build/Debug/tutorial-4.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/sandbox/OpenGLSchool/Tut4/build/Debug/tutorial-4.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;USE_CSD2101_AUTOMATION=0;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;USE_CSD2101_AUTOMATION=0;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>lib\glfw\src\Release\glfw3.lib;lib\glew\lib\Release\glew.lib;Release\csd2101.lib;lib\glfw\src\Release\glfw3.lib;lib\glew\lib\Release\glew.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/sandbox/OpenGLSchool/Tut4/build/Release/tutorial-4.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/sandbox/OpenGLSchool/Tut4/build/Release/tutorial-4.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;USE_CSD2101_AUTOMATION=0;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;USE_CSD2101_AUTOMATION=0;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>lib\glfw\src\MinSizeRel\glfw3.lib;lib\glew\lib\MinSizeRel\glew.lib;MinSizeRel\csd2101.lib;lib\glfw\src\MinSizeRel\glfw3.lib;lib\glew\lib\MinSizeRel\glew.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/sandbox/OpenGLSchool/Tut4/build/MinSizeRel/tutorial-4.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/sandbox/OpenGLSchool/Tut4/build/MinSizeRel/tutorial-4.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;USE_CSD2101_AUTOMATION=0;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;USE_CSD2101_AUTOMATION=0;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\sandbox\OpenGLSchool\Tut4\lib\imgui;C:\sandbox\OpenGLSchool\Tut4\lib\imgui\backends;C:\sandbox\OpenGLSchool\Tut4\lib\gleq;C:\sandbox\OpenGLSchool\Tut4\lib\lodepng;C:\sandbox\OpenGLSchool\Tut4\lib\glfw-event-recorder;C:\sandbox\OpenGLSchool\Tut4\lib\glm;C:\sandbox\OpenGLSchool\Tut4\lib\tinyobjloader;C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include;C:\sandbox\OpenGLSchool\Tut4\lib\glfw\include;C:\sandbox\OpenGLSchool\Tut4\lib\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>lib\glfw\src\RelWithDebInfo\glfw3.lib;lib\glew\lib\RelWithDebInfo\glew.lib;RelWithDebInfo\csd2101.lib;lib\glfw\src\RelWithDebInfo\glfw3.lib;lib\glew\lib\RelWithDebInfo\glew.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/sandbox/OpenGLSchool/Tut4/build/RelWithDebInfo/tutorial-4.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/sandbox/OpenGLSchool/Tut4/build/RelWithDebInfo/tutorial-4.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\sandbox\OpenGLSchool\Tut4\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/sandbox/OpenGLSchool/Tut4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/sandbox/OpenGLSchool/Tut4 -BC:/sandbox/OpenGLSchool/Tut4/build --check-stamp-file C:/sandbox/OpenGLSchool/Tut4/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\WindowsPaths.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeCCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeCXXCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeRCCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/sandbox/OpenGLSchool/Tut4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/sandbox/OpenGLSchool/Tut4 -BC:/sandbox/OpenGLSchool/Tut4/build --check-stamp-file C:/sandbox/OpenGLSchool/Tut4/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\WindowsPaths.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeCCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeCXXCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeRCCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/sandbox/OpenGLSchool/Tut4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/sandbox/OpenGLSchool/Tut4 -BC:/sandbox/OpenGLSchool/Tut4/build --check-stamp-file C:/sandbox/OpenGLSchool/Tut4/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\WindowsPaths.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeCCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeCXXCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeRCCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/sandbox/OpenGLSchool/Tut4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/sandbox/OpenGLSchool/Tut4 -BC:/sandbox/OpenGLSchool/Tut4/build --check-stamp-file C:/sandbox/OpenGLSchool/Tut4/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Compiler\MSVC.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-Initialize.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.29\Modules\Platform\WindowsPaths.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeCCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeCXXCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeRCCompiler.cmake;C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\3.29.2\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\sandbox\OpenGLSchool\Tut4\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include\glapp.h" />
+    <ClInclude Include="C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include\glhelper.h" />
+    <ClInclude Include="C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\include\glslshader.h" />
+    <ClCompile Include="C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\src\glapp.cpp" />
+    <ClCompile Include="C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\src\glhelper.cpp" />
+    <ClCompile Include="C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\src\glslshader.cpp" />
+    <ClCompile Include="C:\sandbox\OpenGLSchool\Tut4\projects\tutorial-4\src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\sandbox\OpenGLSchool\Tut4\build\ZERO_CHECK.vcxproj">
+      <Project>{06292CFE-5A09-37BD-9E71-E649E30A0AB5}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\sandbox\OpenGLSchool\Tut4\build\csd2101.vcxproj">
+      <Project>{BE7B9930-91A7-3680-B699-666D3238EF5F}</Project>
+      <Name>csd2101</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\sandbox\OpenGLSchool\Tut4\build\lib\glfw\src\glfw.vcxproj">
+      <Project>{D08CB870-8106-3EB0-9F9F-3608B71741B4}</Project>
+      <Name>glfw</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\sandbox\OpenGLSchool\Tut4\build\lib\glew\libglew_static.vcxproj">
+      <Project>{BA054A78-4DCB-3580-A6E0-40D8C9D9F5F2}</Project>
+      <Name>libglew_static</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

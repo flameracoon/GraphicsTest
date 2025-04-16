@@ -1,0 +1,240 @@
+#pragma once
+#ifndef SHADER_H
+#define SHADER_H
+/*****************************************************************
+FILENAME:   Shader.h
+AUTHOR(S):  Gabe (100%)
+BRIEF:      Manages to creation of shaders from file path
+			Able to use helper functions to access shader properties easily
+
+All content © 2024 DigiPen Institute of Technology Singapore. All
+rights reserved.
+******************************************************************/
+
+#include <glad/glad.h>
+
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+class Shader {
+
+public:
+	unsigned int ID{ 0 };
+	/************************************************************************/
+	/*!
+	\brief
+	Constructs a `Shader` object by loading and compiling vertex and fragment shaders from the specified file paths.
+
+	\param const char* vertexPath
+	Path to the vertex shader file.
+	\param const char* fragmentPath
+	Path to the fragment shader file.
+
+	\return
+	NIL
+	*/
+	/************************************************************************/
+
+	Shader(const char* vertexPath, const char* fragmentPath) {
+
+		std::string vertexCode, fragmentCode;
+		std::ifstream vShaderFile, fShaderFile;
+		vShaderFile.open(vertexPath);
+		fShaderFile.open(fragmentPath);
+		if (!vShaderFile.is_open() || !fShaderFile.is_open()) { std::cout << "Error opening shader file"; return; }
+
+		//Create string streams
+		std::stringstream vStringStream, fStringStream;
+		vStringStream << vShaderFile.rdbuf();
+		fStringStream << fShaderFile.rdbuf();
+		vShaderFile.close();
+		fShaderFile.close();
+
+		vertexCode = vStringStream.str();
+		fragmentCode = fStringStream.str();
+
+		const char* vertexSourceCode{ vertexCode.c_str() };
+		const char* fragmentSourceCode{ fragmentCode.c_str() };
+
+
+		// compile shaders
+		int success;
+		unsigned int vertex, fragment;
+
+		vertex = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertex, 1, &vertexSourceCode, NULL);
+		glCompileShader(vertex);
+		glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+
+		if (!success) {
+			std::cout << "Shader did not compile" << vertexCode << '\n';
+			int log_len;
+			glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &log_len);
+			if (log_len > 0) {
+				char* log = new char[log_len];
+				GLsizei written_log_len;
+				glGetShaderInfoLog(vertex, log_len, &written_log_len, log);
+				std::cout << "ERROR LOGG" << std::string{ log };
+				delete[] log;
+			}
+			return;
+		}
+
+		fragment = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragment, 1, &fragmentSourceCode, NULL);
+		glCompileShader(fragment);
+		glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+
+		if (!success) {
+			std::cout << "Fragment shader did not compile";
+			return;
+		}
+
+		ID = glCreateProgram();
+		glAttachShader(ID, vertex);
+		glAttachShader(ID, fragment);
+		glLinkProgram(ID);
+
+		glGetProgramiv(ID, GL_LINK_STATUS, &success);
+		if (!success)
+		{
+			char infoLog[512];
+			glGetProgramInfoLog(ID, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+			return;
+		}
+
+		glDeleteShader(vertex);
+		glDeleteShader(fragment);
+		std::cout << "Created shader";
+	}
+	/************************************************************************/
+	/*!
+	\brief
+	Deletes the shader program.
+
+	\return
+	NIL
+	*/
+	/************************************************************************/
+	void DeleteShader() {
+		//std::cout << "DELETE SHADER";
+		glDeleteProgram(ID);
+	}
+	/************************************************************************/
+	/*!
+	\brief
+	Activates the shader program for use in the rendering pipeline.
+
+	\return
+	NIL
+	*/
+	/************************************************************************/
+	void Use() {
+		glUseProgram(ID);
+	}
+
+	void Disuse() {
+		glUseProgram(0);
+	}
+
+	/************************************************************************/
+	/*!
+	\brief
+	Sets a boolean uniform variable in the shader.
+
+	\param const std::string& name
+	The name of the uniform variable in the shader.
+	\param bool value
+	The boolean value to set.
+
+	\return
+	NIL
+	*/
+	/************************************************************************/
+	void SetBool(const std::string& name, bool value) const;
+	/************************************************************************/
+	/*!
+	\brief
+	Sets a transformation matrix uniform in the shader.
+
+	\param const std::string& name
+	The name of the uniform variable in the shader.
+	\param const glm::mat4& trans
+	The transformation matrix to set.
+
+	\return
+	NIL
+	*/
+	/************************************************************************/
+	void SetTrans(const std::string& name, const glm::mat4& trans) const {
+		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(trans));
+	}
+
+	void SetVec2(const std::string& name, const glm::vec2& vec2) const {
+		glUniform2f(glGetUniformLocation(ID, name.c_str()), vec2.x, vec2.y);
+	}
+
+	void SetVec3(const std::string& name, const glm::vec3& vec3) const {
+		glUniform3f(glGetUniformLocation(ID, name.c_str()), vec3.x, vec3.y, vec3.z);
+	}
+
+	/************************************************************************/
+	/*!
+	\brief
+	Sets a 4D vector uniform in the shader.
+
+	\param const std::string& name
+	The name of the uniform variable in the shader.
+	\param const glm::vec4& vec4
+	The 4D vector to set.
+
+	\return
+	NIL
+	*/
+	/************************************************************************/
+	void SetVec4(const std::string& name, const glm::vec4& vec4) const {
+		glUniform4f(glGetUniformLocation(ID, name.c_str()), vec4.r, vec4.g, vec4.b, vec4.a);
+	}
+	/************************************************************************/
+	/*!
+	\brief
+	Sets an integer uniform in the shader.
+
+	\param const std::string& name
+	The name of the uniform variable in the shader.
+	\param int value
+	The integer value to set.
+
+	\return
+	NIL
+	*/
+	/************************************************************************/
+	void SetInt(const std::string& name, int value) const {
+		glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+	}
+	/************************************************************************/
+	/*!
+	\brief
+	Sets a float uniform in the shader.
+
+	\param const std::string& name
+	The name of the uniform variable in the shader.
+	\param float value
+	The float value to set.
+
+	\return
+	NIL
+	*/
+	/************************************************************************/
+	void SetFloat(const std::string& name, float value) const {
+		glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+	}
+};
+#endif // ! SHADER_H

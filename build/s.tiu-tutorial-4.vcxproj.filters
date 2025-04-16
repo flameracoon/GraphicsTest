@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\sandbox\OpenGLSchool\Tut4\test-submissions\s.tiu-tutorial-4\src\glapp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\sandbox\OpenGLSchool\Tut4\test-submissions\s.tiu-tutorial-4\src\glhelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\sandbox\OpenGLSchool\Tut4\test-submissions\s.tiu-tutorial-4\src\glslshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\sandbox\OpenGLSchool\Tut4\test-submissions\s.tiu-tutorial-4\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\sandbox\OpenGLSchool\Tut4\test-submissions\s.tiu-tutorial-4\include\glapp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\sandbox\OpenGLSchool\Tut4\test-submissions\s.tiu-tutorial-4\include\glhelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\sandbox\OpenGLSchool\Tut4\test-submissions\s.tiu-tutorial-4\include\glslshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\sandbox\OpenGLSchool\Tut4\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{65643581-A7AC-3882-A30C-A48013230D85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{BD4D7351-F44A-3FCF-9FC3-8B43023F6234}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
