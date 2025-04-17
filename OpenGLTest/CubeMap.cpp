@@ -1,0 +1,122 @@
+#include "CubeMap.h"
+
+//Load a cubemap
+
+void CubeMap::InitializeMap(std::vector<std::string> texFiles) {
+    LoadCubeModel();
+    LoadCubeTexture(texFiles);
+}
+void CubeMap::LoadCubeTexture(std::vector<std::string> faces) {
+    stbi_set_flip_vertically_on_load(false);
+
+    // Generate a texture ID for the cube map
+    glGenTextures(1, &texID);
+
+    // Bind the texture as a cube map
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
+
+    GLuint i = 0;
+    // Iterate through the provided file names
+    for (std::string filename : faces)
+    {
+        GLint w, h; // Variables to store the width and height of the texture
+
+        // Load the HDR image data for the current file
+        float* data = stbi_loadf(filename.c_str(), &w, &h, NULL, 3);
+
+        if (!data) // Throw an exception if the file cannot be loaded
+            throw std::runtime_error(std::string("file ") + filename + " not found.");
+
+        if (i == 0) // Allocate immutable storage for the whole cube map texture
+            glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, GL_RGB32F, w, h);
+        // Upload the image data to the appropriate cube map face
+        glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, 0, 0, w, h, GL_RGB, GL_FLOAT, data);
+
+        // Free the image data after uploading it to the GPU
+        stbi_image_free(data);
+
+        i++;
+    }
+
+    // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    stbi_set_flip_vertically_on_load(true);
+
+}
+void CubeMap::LoadCubeModel() {
+    float cubeMapVertices[] = {
+        // positions          
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+    // skybox VAO
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeMapVertices), &cubeMapVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+}
+int CubeMap::RetrieveID() { return texID;; }
+void Skybox::Render(Shader* shader, glm::mat4 const& view, glm::mat4 const& projection) {
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
+    shader->Use();
+    shader->SetTrans("view", view);
+    shader->SetTrans("projection", projection);
+    // skybox cube
+    glBindVertexArray(VAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    shader->Disuse();
+
+}

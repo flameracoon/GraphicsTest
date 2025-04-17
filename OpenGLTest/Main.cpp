@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+﻿#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <array>
@@ -15,6 +15,11 @@
 #include <filesystem>
 #include "Model.h"
 #include "Camera.h"
+#include "Light.h"
+#include "Material.h"
+#include "GraphicsDebuffer.h"
+#include "CubeMap.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -175,9 +180,23 @@ void loadModel(std::string path)
 	std::string directory = path.substr(0, path.find_last_of('/'));
 }
 Camera cam;
+bool mouseCon = false;;
+void mouseButtonCallback(GLFWwindow* pWindow, int button, int action, int mods)
+{
+	// Placeholder for mouse button actions
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		mouseCon = true;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	{
+		// Left mouse button released
+		mouseCon = false;
+	}
+}
 void cursorPosCallback(GLFWwindow* pWindow, double xpos, double ypos)
 {
-
+		if (!mouseCon)return;;
 		static double oldxpos = xpos;
 		static double oldypos = ypos;
 		cam.onCursor(xpos - oldxpos, ypos - oldypos);
@@ -196,36 +215,7 @@ void scrollCallback(GLFWwindow* pWindow, double xoffset, double yoffset)
 
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-	if (firstMouse) {
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
-
-	float xOffset{static_cast<float>( xpos - lastX) };
-	float yOffset{ static_cast<float>(ypos - lastY) };
-	//update last position
-	lastX = xpos;
-	lastY = ypos;
-
-	//Set sensitivity
-	float sensitivity = 0.1f;
-	xOffset *= sensitivity;
-	yOffset *= sensitivity;
-
-	yaw += xOffset;
-	pitch += yOffset;
-	//Clamp ptich
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
-
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront= glm::normalize(direction);
+	
 }
 int main() {
 
@@ -265,123 +255,112 @@ int main() {
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 	glfwSetScrollCallback(window, scrollCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+
 	//loadModel("../Assets/backpack/backpack.obj");
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
 	//Create Shader
-	Shader modelShader("../Assets/Shader/DefaultShader/VTextShader.vs","../Assets/Shader/DefaultShader/FTextShader.fs");
+	Shader skyboxShader("../Assets/Shader/SkyBoxShader/SkyBoxShader.vs", "../Assets/Shader/SkyBoxShader/SkyBoxShader.fs");
+
+	Shader modelShader("../Assets/Shader/LightShader/LightShader.vs","../Assets/Shader/LightShader/LightShader.fs");
 	Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	// Set the position of the light
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
-	// world space positions of our cubes
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-	unsigned int VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
 
 	Texture tex("../Assets/Wife.jpeg", "Tex1");
+	Light light;
+	Material material;
+	Skybox cubeMap;
+	cubeMap.InitializeMap(
+		{ "../Assets/SkyBox/night_negx.png", "../Assets/SkyBox/night_posx.png",
+		  "../Assets/SkyBox/night_posy.png", "../Assets/SkyBox/night_negy.png",
+		  "../Assets/SkyBox/night_posz.png", "../Assets/SkyBox/night_negz.png" });
 
 	float degree = 0.f;
+	DebugInit(window);
+	glm::vec3 modelPos{0.f};
+	glm::vec3 cameraPos{ 0.f };
 	while (!glfwWindowShouldClose(window))
 	{
+		// Start ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		// 🪟 Your ImGui window
+		ImGui::Begin("Hello, ImGui!");
+		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+		ImGui::Text("Use the slider to move the model:");
+		ImGui::SliderFloat3("Light Position", &light.position[0], -10.f, 10.f); // vec3 slider
+		ImGui::SliderFloat3("Light Color", &light.color[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Ambient", &light.ambientStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Diffuse", &light.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Specular", &light.specularStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("ModelPos Specular", &modelPos[0], -800.0f, 800.0f); // vec3 slider
+		ImGui::SliderFloat3("CameraPos", &cameraPos[0], -1600.0f, 1600.0f); // vec3 slider
+		ImGui::SliderFloat("Material", &material.reflectivity, 0.f, 1.f); // vec3 slider
+
+		ImGui::End();
+
 
 
 		glClearColor(0.1f, 0.1f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-		modelShader.Use();
-		tex.Use();
+
 
 		glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 		glm::mat4 projection = glm::mat4(1.0f);
 		projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)800, 0.1f, 100.0f);
 
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -8.0f))* glm::rotate(view, glm::radians(degree), glm::vec3{ 1.f,0.f,0.f });
+		view = glm::translate(view, cameraPos/400.f);
+		//* glm::rotate(view, glm::radians(degree), glm::vec3{ 1.f,0.f,0.f });
+
 		degree += 0.1f;
+
+		//Render skybox
+
+		
+		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
+		
+
+		//Render Light
+		light.SetUniform(&modelShader, 0);
+		material.SetUniform(&modelShader);
+
+		tex.Use();
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+
+		modelShader.Use();
 		modelShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 		modelShader.SetTrans("view", cam.CalculateViewMtx());
+		modelShader.SetVec3("cameraPosition", cam.position);
 
-
-		// render the loaded model
+		//// render the loaded model
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		model = glm::translate(model, modelPos/400.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		modelShader.SetTrans("model", model);
 		ourModel.Draw(modelShader);
 
+		model = glm::translate(model, {1.f,0.f,0.f}) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		modelShader.SetTrans("model", model);
+		ourModel.Draw(modelShader);
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		//Draw vertex
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+
 	}
 	//Delete programs
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
 	glDeleteProgram(shaderProgram);
 	glDeleteProgram(shaderProgram2);
 
