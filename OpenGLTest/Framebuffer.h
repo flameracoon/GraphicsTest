@@ -29,7 +29,7 @@ struct FrameBuffer {
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		GLuint clearColor[4] = { 1,0,0,0 };
+		GLuint clearColor[4] = { 1,1.f,0,0 };
 		glClearBufferuiv(GL_COLOR, 0, clearColor);
 		//Check if FBO is generated properly
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -98,4 +98,21 @@ struct FrameBuffer {
 		glDrawElements(GL_TRIANGLE_STRIP, drawCount, GL_UNSIGNED_SHORT, NULL);
 		glBindVertexArray(0);
 	}
+};
+
+class GBuffer {
+
+public:
+	void InitializeGBuffer();
+	void BindGBuffer();
+	void UseGTextures();
+	unsigned int RetrieveBuffer() { return gBuffer;;}
+	void UseGBufferShader() { shader->Use();;}
+private:
+	unsigned int gBuffer;
+	unsigned int rboDepth;
+	//Textures to generate
+	unsigned int gPosition, gNormal, gAlbedoSpec,gReflect;
+	Shader* shader;
+
 };

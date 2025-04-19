@@ -3,9 +3,12 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-layout(binding=0) uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_specular1;
-layout(binding=2) uniform samplerCube cubeTexture;
+layout(location=0)  uniform sampler2D gPosition;
+layout(location=1)  uniform sampler2D gNormal;
+layout(location=2)  uniform sampler2D gAlbedoSpec;
+layout(location=3)  uniform sampler2D gReflect;  // Tangent-space light direction
+layout(binding=4)   uniform samplerCube cubeTexture;
+
 
 struct Material 
 {
@@ -35,9 +38,7 @@ struct DirectionalLight
     vec3 Ls;            // Specular light intensity
 };
 
-in vec3 Position;       // In view space
-in vec3 Normal;         // In view space
-in vec3 ReflectDir;
+
 
 uniform Light light[1];
 uniform DirectionalLight directionalLight[1];
@@ -48,10 +49,12 @@ uniform mat4 view;
 vec3 BlinnPhong(vec3 position,vec3 normal, Light light, mat4 view)
 {
     vec3 color = light.color;
+    vec3 diffuseColor = texture(gAlbedoSpec, TexCoords).rgb;
+    float specularColor = texture(gAlbedoSpec, TexCoords).a;
 
     if (any(notEqual(normal, vec3(0.0f, 0.0f, 0.0f))))
     {
-         vec3 ambient =light.La * material.Ka*texture(texture_diffuse1, TexCoords).rgb*light.color;
+         vec3 ambient =light.La * material.Ka*diffuseColor*light.color;
     // Calculate the ambient component
     vec3 lightPos = vec3(view * vec4(light.position, 1.0));
     normal = normalize(normal);
@@ -61,7 +64,7 @@ vec3 BlinnPhong(vec3 position,vec3 normal, Light light, mat4 view)
     // Calculate the diffuse component
     float diff = dot(normal, lightDir) > 0.0f ? dot(normal, lightDir) : 0.0f;
 
-    vec3 diffuse = light.Ld * (diff* material.Kd)*texture(texture_diffuse1, TexCoords).rgb*light.color;
+    vec3 diffuse = light.Ld * (diff* material.Kd)*diffuseColor.rgb*light.color;
 
     vec3 specular;
     if (diff > 0.f) {
@@ -72,7 +75,7 @@ vec3 BlinnPhong(vec3 position,vec3 normal, Light light, mat4 view)
         float specAngle = dot(reflectDir, normal) > 0.0f ? dot(normal, reflectDir) : 0.0f;
         spec = pow(specAngle, material.shininess);
 
-        specular = light.Ls * (spec* material.Ks)*texture(texture_diffuse1, TexCoords).rgb*light.color;
+        specular = light.Ls * (spec* material.Ks)*specularColor*light.color;
     }
 
     // Combine the results
@@ -84,10 +87,11 @@ vec3 BlinnPhong(vec3 position,vec3 normal, Light light, mat4 view)
 }
 vec3 DirBlinnPhong(vec3 position,vec3 normal, DirectionalLight light, mat4 view){
     vec3 color = light.color;
-
+    vec3 diffuseColor = texture(gAlbedoSpec, TexCoords).rgb;
+    float specularColor = texture(gAlbedoSpec, TexCoords).a;
     if (any(notEqual(normal, vec3(0.0f, 0.0f, 0.0f))))
     {
-         vec3 ambient =light.La * material.Ka*texture(texture_diffuse1, TexCoords).rgb*light.color;
+         vec3 ambient =light.La * material.Ka*diffuseColor*light.color;
     // Calculate the ambient component
     normal = normalize(normal);
     // Vector from fragment to light source
@@ -95,7 +99,7 @@ vec3 DirBlinnPhong(vec3 position,vec3 normal, DirectionalLight light, mat4 view)
     // Calculate the diffuse component
     float diff = dot(normal, light.direction) > 0.0f ? dot(normal, light.direction) : 0.0f;
 
-    vec3 diffuse = light.Ld * (diff* material.Kd)*texture(texture_diffuse1, TexCoords).rgb*light.color;
+    vec3 diffuse = light.Ld * (diff* material.Kd)*diffuseColor*light.color;
 
     vec3 specular;
     if (diff > 0.f) {
@@ -106,7 +110,7 @@ vec3 DirBlinnPhong(vec3 position,vec3 normal, DirectionalLight light, mat4 view)
         float specAngle = dot(reflectDir, normal) > 0.0f ? dot(normal, reflectDir) : 0.0f;
         spec = pow(specAngle, material.shininess);
 
-        specular = light.Ls * (spec* material.Ks)*texture(texture_diffuse1, TexCoords).rgb*light.color;
+        specular = light.Ls * (spec* material.Ks)*specularColor*light.color;
     }
 
     // Combine the results
@@ -117,9 +121,17 @@ vec3 DirBlinnPhong(vec3 position,vec3 normal, DirectionalLight light, mat4 view)
     return color;
 }
 void main()
-{    
-    //Create Reflection
-    vec3 envMap = texture(cubeTexture, ReflectDir).rgb;
+{   
     
-    FragColor = vec4(mix(DirBlinnPhong(Position, normalize(Normal), directionalLight[0],view),envMap,material.reflectivity),1.0);
+     vec4 diffuseColor = texture(gAlbedoSpec, TexCoords);
+    if (diffuseColor.x==0&&diffuseColor.y==0.f&&diffuseColor.z==0.f&&diffuseColor.a==0.f){
+    
+            discard;;   
+
+    }
+        
+    //Create Reflection
+    vec3 envMap = texture(cubeTexture, vec3(texture(gReflect, TexCoords)) ).rgb;
+    
+    FragColor = vec4(mix(DirBlinnPhong(vec3(texture(gPosition, TexCoords)),  vec3(texture(gNormal, TexCoords)), directionalLight[0],view),envMap,material.reflectivity),1.0);
 }

@@ -28,5 +28,35 @@ void Light::SetUniform(Shader* shader,size_t number) {
     s << "light[" << number << "].Ls";
     shader->SetVec3(s.str(), this->specularStrength);
 
-	shader->Disuse();
+
+    shader->Disuse();
+}
+
+
+void DirectionalLight::SetUniform(Shader* shader, size_t number) {
+    shader->Use();
+
+    std::stringstream s;
+
+    // Set the position of the light
+    s << "directionalLight[" << number << "].direction";
+    shader->SetVec3(s.str(), normalize(-direction));
+
+    s.str("");
+    s << "directionalLight[" << number << "].color";
+    shader->SetVec3(s.str(), this->color);
+
+    s.str("");
+    s << "directionalLight[" << number << "].La";
+    shader->SetVec3(s.str(), this->ambientStrength);
+
+    s.str("");
+    s << "directionalLight[" << number << "].Ld";
+    shader->SetVec3(s.str(), this->diffuseStrength);
+
+    s.str("");
+    s << "directionalLight[" << number << "].Ls";
+    shader->SetVec3(s.str(), this->specularStrength);
+
+    shader->Disuse();
 }

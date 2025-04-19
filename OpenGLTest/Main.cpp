@@ -13,12 +13,14 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <filesystem>
+
 #include "Model.h"
 #include "Camera.h"
 #include "Light.h"
 #include "Material.h"
 #include "GraphicsDebuffer.h"
 #include "CubeMap.h"
+#include "Framebuffer.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -226,7 +228,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//Create window to be displayed
-	GLFWwindow* window = glfwCreateWindow(800, 800, "GAM300 Graphics test", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(1600.f, 900.f, "GAM300 Graphics test", NULL, NULL);
 	if(window==NULL){
 		std::cout << "Failed to create window";
 		glfwTerminate();
@@ -246,7 +248,7 @@ int main() {
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glViewport(0, 0, 800, 800);
+	glViewport(0, 0, 1600.f, 900.f);
 	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -264,6 +266,11 @@ int main() {
 	Shader skyboxShader("../Assets/Shader/SkyBoxShader/SkyBoxShader.vs", "../Assets/Shader/SkyBoxShader/SkyBoxShader.fs");
 
 	Shader modelShader("../Assets/Shader/LightShader/LightShader.vs","../Assets/Shader/LightShader/LightShader.fs");
+	Shader frameBufferShader("../Assets/Shader/FrameBuffShader/FrameBuffShader.vs", "../Assets/Shader/FrameBuffShader/FrameBuffShader.fs");
+
+	Shader gBufferShader("../Assets/Shader/GBufferShader/GBufferShader.vs", "../Assets/Shader/GBufferShader/GBufferShader.fs");
+	Shader deferredLightShader("../Assets/Shader/DeferredLight/DeferredLight.vs", "../Assets/Shader/DeferredLight/DeferredLight.fs");
+
 	Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
@@ -273,6 +280,7 @@ int main() {
 
 	Texture tex("../Assets/Wife.jpeg", "Tex1");
 	Light light;
+	DirectionalLight dirLight;
 	Material material;
 	Skybox cubeMap;
 	cubeMap.InitializeMap(
@@ -284,6 +292,13 @@ int main() {
 	DebugInit(window);
 	glm::vec3 modelPos{0.f};
 	glm::vec3 cameraPos{ 0.f };
+	//Create a frame buffer
+	FrameBuffer frameBuffer;
+	frameBuffer.InitializeFBO(1600.f, 900.f);
+	frameBuffer.shader = &frameBufferShader;
+	GBuffer gBuffer;
+	gBuffer.InitializeGBuffer();
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Start ImGui frame
@@ -296,63 +311,115 @@ int main() {
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 
 		ImGui::Text("Use the slider to move the model:");
-		ImGui::SliderFloat3("Light Position", &light.position[0], -10.f, 10.f); // vec3 slider
-		ImGui::SliderFloat3("Light Color", &light.color[0], -10.0f, 10.0f); // vec3 slider
-		ImGui::SliderFloat3("Light Ambient", &light.ambientStrength[0], -10.0f, 10.0f); // vec3 slider
-		ImGui::SliderFloat3("Light Diffuse", &light.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
-		ImGui::SliderFloat3("Light Specular", &light.specularStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Position", &dirLight.direction[0], -10.f, 10.f); // vec3 slider
+		ImGui::SliderFloat3("Light Color", &dirLight.color[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Ambient", &dirLight.ambientStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Diffuse", &dirLight.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Specular", &dirLight.specularStrength[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("ModelPos Specular", &modelPos[0], -800.0f, 800.0f); // vec3 slider
 		ImGui::SliderFloat3("CameraPos", &cameraPos[0], -1600.0f, 1600.0f); // vec3 slider
 		ImGui::SliderFloat("Material", &material.reflectivity, 0.f, 1.f); // vec3 slider
 
 		ImGui::End();
 
+		
 
-
-		glClearColor(0.1f, 0.1f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
+		//Do deferred shading
+		gBuffer.BindGBuffer();
 
 		glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 		glm::mat4 projection = glm::mat4(1.0f);
 		projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)800, 0.1f, 100.0f);
 
-		view = glm::translate(view, cameraPos/400.f);
+		view = glm::translate(view, cameraPos / 400.f);
 		//* glm::rotate(view, glm::radians(degree), glm::vec3{ 1.f,0.f,0.f });
 
 		degree += 0.1f;
 
 		//Render skybox
 
-		
-		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
-		
+		gBufferShader.Use();
 
-		//Render Light
-		light.SetUniform(&modelShader, 0);
-		material.SetUniform(&modelShader);
 
-		tex.Use();
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+		//
 
-		modelShader.Use();
-		modelShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-		modelShader.SetTrans("view", cam.CalculateViewMtx());
-		modelShader.SetVec3("cameraPosition", cam.position);
-
-		//// render the loaded model
+		gBufferShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+		gBufferShader.SetTrans("view", cam.CalculateViewMtx());
+		gBufferShader.SetVec3("cameraPosition", cam.position);
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, modelPos/400.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-		modelShader.SetTrans("model", model);
-		ourModel.Draw(modelShader);
+	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		gBufferShader.SetTrans("model", model);
+		ourModel.Draw(gBufferShader);
 
+		model = glm::mat4{ 1.f };
 		model = glm::translate(model, {1.f,0.f,0.f}) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-		modelShader.SetTrans("model", model);
-		ourModel.Draw(modelShader);
+		gBufferShader.SetTrans("model", model);
+		ourModel.Draw(gBufferShader);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(1.f, 0.0f, 0.f, 1.0f);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		dirLight.SetUniform(&deferredLightShader, 0);
+		material.SetUniform(&deferredLightShader);
+
+		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
+
+		deferredLightShader.Use();
+
+		gBuffer.UseGTextures();
+		glUniform1i(glGetUniformLocation(deferredLightShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
+		glUniform1i(glGetUniformLocation(deferredLightShader.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
+		glUniform1i(glGetUniformLocation(deferredLightShader.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2
+		glUniform1i(glGetUniformLocation(deferredLightShader.ID, "gReflect"), 3);
+		//material.SetUniform(&deferredLightShader);
+		
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBindVertexArray(frameBuffer.vaoId);
+		glDrawElements(GL_TRIANGLE_STRIP, frameBuffer.drawCount, GL_UNSIGNED_SHORT, NULL);
+		glDisable(GL_BLEND);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer.RetrieveBuffer());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(0, 0, 1600, 900, 0, 0, 1600, 900, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		////Render Light
+		//dirLight.SetUniform(&modelShader, 0);
+		//material.SetUniform(&modelShader);
+
+		//tex.Use();
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+
+		//modelShader.Use();
+		//modelShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+		//modelShader.SetTrans("view", cam.CalculateViewMtx());
+		//modelShader.SetVec3("cameraPosition", cam.position);
+
+		////// render the loaded model
+		//glm::mat4 model = glm::mat4(1.0f);
+		//model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		//modelShader.SetTrans("model", model);
+		//ourModel.Draw(modelShader);
+
+		//model = glm::mat4{ 1.f };
+		//model = glm::translate(model, {1.f,0.f,0.f}) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		//modelShader.SetTrans("model", model);
+		//ourModel.Draw(modelShader);
+
+		//glBindVertexArray(0);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+		//glClearColor(0.f, 0.0f, 1.f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
+		//frameBuffer.Render();
 
 		//Draw vertex
 		glfwSwapBuffers(window);

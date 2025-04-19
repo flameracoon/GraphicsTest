@@ -63,6 +63,9 @@
     <ClCompile Include="CubeMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -131,5 +134,11 @@
     <None Include="..\Assets\Shader\LightShader\LightShader.vs" />
     <None Include="..\Assets\Shader\SkyBoxShader\SkyBoxShader.fs" />
     <None Include="..\Assets\Shader\SkyBoxShader\SkyBoxShader.vs" />
+    <None Include="..\Assets\Shader\FrameBuffShader\FrameBuffShader.fs" />
+    <None Include="..\Assets\Shader\FrameBuffShader\FrameBuffShader.vs" />
+    <None Include="..\Assets\Shader\GBufferShader\GBufferShader.fs" />
+    <None Include="..\Assets\Shader\GBufferShader\GBufferShader.vs" />
+    <None Include="..\Assets\Shader\DeferredLight\DeferredLight.fs" />
+    <None Include="..\Assets\Shader\DeferredLight\DeferredLight.vs" />
   </ItemGroup>
 </Project>
