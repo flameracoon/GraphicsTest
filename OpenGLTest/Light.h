@@ -18,6 +18,8 @@ struct Light {
 	glm::vec3  diffuseStrength{1.f};
 	glm::vec3  specularStrength{1.f};
 	virtual void SetUniform(Shader* shader, size_t number);
+	float linear{0.09f};
+	float quadratic{ 0.032f };
 };
 
 struct DirectionalLight:public Light {
@@ -26,4 +28,14 @@ struct DirectionalLight:public Light {
 	void SetUniform(Shader* shader, size_t number);
 private:
 	glm::vec3 position;
+	float linear;
+	float quadratic;
+};
+
+struct SpotLight :public Light {
+
+	glm::vec3 direction{0.f,0.f,1.f};
+	float cutOff{5.5f};
+	float outerCutOff{10.5f};
+	void SetUniform(Shader* shader, size_t number);
 };

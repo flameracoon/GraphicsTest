@@ -33,15 +33,23 @@ void GBuffer::InitializeGBuffer() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gReflect, 0);
+    //Material info
+    glGenTextures(1, &gMaterial);
+    glBindTexture(GL_TEXTURE_2D, gMaterial);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 1600, 900, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gMaterial, 0);
 
     // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
-    GLuint attachments[4] = {
+    GLuint attachments[5] = {
     GL_COLOR_ATTACHMENT0,
     GL_COLOR_ATTACHMENT1,
     GL_COLOR_ATTACHMENT2,
-    GL_COLOR_ATTACHMENT3
+    GL_COLOR_ATTACHMENT3,
+    GL_COLOR_ATTACHMENT4
     };
-    glDrawBuffers(4, attachments);
+    glDrawBuffers(5, attachments);
     // create and attach depth buffer (renderbuffer)
     glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
@@ -69,4 +77,6 @@ void GBuffer::UseGTextures() {
     glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, gReflect);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, gMaterial);
 }
