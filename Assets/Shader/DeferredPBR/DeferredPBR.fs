@@ -146,9 +146,9 @@ vec3 microfacetModel(vec3 position, vec3 n,vec3 color,float roughness,int i)
             // Cook-Torrance BRDF   
         vec3 F    = schlickFresnel(lDotH);
            
-        vec3 numerator    = ggxDistribution(nDotH,roughness) * geomSmith(nDotL,roughness) *geomSmith(nDotV,roughness)* F; 
-        float denominator = 4.0 * nDotV * nDotL; // + 0.0001 to prevent divide by zero
-        vec3 specular = numerator / denominator;
+        //vec3 numerator    = ggxDistribution(nDotH,roughness) * geomSmith(nDotL,roughness) *geomSmith(nDotV,roughness)* F; 
+        //float denominator = 4.0 * nDotV * nDotL; // + 0.0001 to prevent divide by zero
+        //vec3 specular = numerator / denominator;
         vec3 specBrdf = 0.25f * ggxDistribution(nDotH,roughness) * F 
                             * geomSmith(nDotL,roughness) * geomSmith(nDotV,roughness);
         // kS is equal to Fresnel
@@ -199,9 +199,9 @@ vec3 spotlightMicrofacetModel(vec3 position, vec3 n,vec3 color,float roughness,i
             // Cook-Torrance BRDF   
         vec3 F    = schlickFresnel(lDotH);
            
-        vec3 numerator    = ggxDistribution(nDotH,roughness) * geomSmith(nDotL,roughness) *geomSmith(nDotV,roughness)* F; 
-        float denominator = 4.0 * nDotV * nDotL; // + 0.0001 to prevent divide by zero
-        vec3 specular = numerator / denominator;
+        //vec3 numerator    = ggxDistribution(nDotH,roughness) * geomSmith(nDotL,roughness) *geomSmith(nDotV,roughness)* F; 
+        //float denominator = 4.0 * nDotV * nDotL; // + 0.0001 to prevent divide by zero
+        //vec3 specular = numerator / denominator;
         vec3 specBrdf = 0.25f * ggxDistribution(nDotH,roughness) * F 
                             * geomSmith(nDotL,roughness) * geomSmith(nDotV,roughness);
         // kS is equal to Fresnel
@@ -228,8 +228,7 @@ vec3 microFacetDirection(vec3 position, vec3 n,vec3 color,float roughness,int i)
 
     vec3 lightI = directionalLight[i].color;
 
-    vec3 l = -(view * vec4(directionalLight[i].direction, 1.0f)).xyz;
-    l = normalize(l);
+    vec3 l = normalize((mat3(view) * directionalLight[i].direction));
 
 
     vec3 v = normalize(-position);
@@ -241,9 +240,9 @@ vec3 microFacetDirection(vec3 position, vec3 n,vec3 color,float roughness,int i)
 
          vec3 F    = schlickFresnel(lDotH);
            
-        vec3 numerator    = ggxDistribution(nDotH,roughness) * geomSmith(nDotL,roughness) *geomSmith(nDotV,roughness)* F; 
-        float denominator = 4.0 * nDotV * nDotL; // + 0.0001 to prevent divide by zero
-        vec3 specular = numerator / denominator;
+        //vec3 numerator    = ggxDistribution(nDotH,roughness) * geomSmith(nDotL,roughness) *geomSmith(nDotV,roughness)* F; 
+        //float denominator = 4.0 * nDotV * nDotL; // + 0.0001 to prevent divide by zero
+        //vec3 specular = numerator / denominator;
         vec3 specBrdf = 0.25f * ggxDistribution(nDotH,roughness) * F 
                             * geomSmith(nDotL,roughness) * geomSmith(nDotV,roughness);
         // kS is equal to Fresnel
@@ -293,7 +292,7 @@ void main()
         newLight+=microFacetDirection(positionMap, normalMap,diffuseColor,newMat.g,i);
     }
      vec3 color = newLight/ (newLight + vec3(1.0));
-     color=mix(color,envMap,specularColor);
+     //color=mix(color,envMap,specularColor);
      color = pow(color, vec3(1.0/2.2)); 
     //FragColor = vec4(color, 1.0);
     FragColor = vec4(color,1.0);

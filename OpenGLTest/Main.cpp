@@ -375,7 +375,7 @@ int main() {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		light.color = glm::vec3(0.f, 0.f, 1.f);
+		light.color = glm::vec3(1.f, 1.f, 1.f);
 		light.SetUniform(&deferredPBRShader, 0);
 		light2.SetUniform(&deferredPBRShader, 1);
 
@@ -388,9 +388,9 @@ int main() {
 		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
 
 		deferredPBRShader.SetTrans("view", cam.CalculateViewMtx());
-		deferredPBRShader.SetInt("pointLightNo", 0);
-		deferredPBRShader.SetInt("dirLightNo", 1);
-		deferredPBRShader.SetInt("spotLightNo", 0);
+		deferredPBRShader.SetInt("pointLightNo", 1);
+		deferredPBRShader.SetInt("dirLightNo", 0);
+		deferredPBRShader.SetInt("spotLightNo", 1);
 
 		gBuffer.UseGTextures();
 		glActiveTexture(GL_TEXTURE5);
