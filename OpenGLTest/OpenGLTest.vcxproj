@@ -180,10 +180,14 @@
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.fs" />
+    <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.vs" />
     <None Include="..\Assets\Shader\DeferredLight\DeferredLight.fs" />
     <None Include="..\Assets\Shader\DeferredLight\DeferredLight.vs" />
     <None Include="..\Assets\Shader\DeferredPBR\DeferredPBR.fs" />
     <None Include="..\Assets\Shader\DeferredPBR\DeferredPBR.vs" />
+    <None Include="..\Assets\Shader\DepthMap\DepthMap.fs" />
+    <None Include="..\Assets\Shader\DepthMap\DepthMap.vs" />
     <None Include="..\Assets\Shader\FrameBuffShader\FrameBuffShader.fs" />
     <None Include="..\Assets\Shader\FrameBuffShader\FrameBuffShader.vs" />
     <None Include="..\Assets\Shader\GBufferShader\GBufferShader.fs" />

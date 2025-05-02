@@ -274,6 +274,9 @@ int main() {
 	Shader gBufferPBRShader("../Assets/Shader/GBuffPBRShader/GBuffPBRShader.vs", "../Assets/Shader/GBuffPBRShader/GBuffPBRShader.fs");
 	Shader deferredPBRShader("../Assets/Shader/DeferredPBR/DeferredPBR.vs", "../Assets/Shader/DeferredPBR/DeferredPBR.fs");
 
+	Shader debugDepthMapShader("../Assets/Shader/DebugDepthMap/DebugDepthMap.vs", "../Assets/Shader/DebugDepthMap/DebugDepthMap.fs");
+	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
+
 	Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
@@ -303,6 +306,8 @@ int main() {
 	frameBuffer.InitializeFBO(1600.f, 900.f);
 	frameBuffer.shader = &frameBufferShader;
 	GBuffer gBuffer;
+	DepthBuffer depthBuffer;
+	depthBuffer.InitializeDepthBuffer();
 	gBuffer.InitializeGBuffer();
 
 	while (!glfwWindowShouldClose(window))
@@ -359,7 +364,33 @@ int main() {
 	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 		ourModel.Draw(gBufferPBRShader);
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		gBufferPBRShader.SetTrans("model", model);
+		ourModel.Draw(gBufferPBRShader);
+
 		gBufferPBRShader.Disuse();
+
+		//Render to depth map
+		glViewport(0, 0, 1600.f, 900.f);
+		glCullFace(GL_FRONT);
+		dirLight.SetShaderMtrx(&depthMapShader, 0);
+		depthMapShader.Use();
+		glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer.depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		depthMapShader.SetTrans("model", model);
+		ourModel.Draw(depthMapShader);
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		depthMapShader.SetTrans("model", model);
+		ourModel.Draw(depthMapShader);
+		depthMapShader.Disuse();
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//gBufferShader.Use();
 		//gBufferShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
@@ -369,7 +400,21 @@ int main() {
 		//model = glm::translate(model, {1.f,0.f,0.f}) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		//gBufferShader.SetTrans("model", model);
 		//ourModel.Draw(gBufferShader);
+				// reset viewport
+		glViewport(0, 0, 1600.f, 900.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// render Depth map to quad for visual debugging
+		// ---------------------------------------------
+		//debugDepthMapShader.Use();
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, depthBuffer.RetrieveBuffer());
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glBindVertexArray(frameBuffer.vaoId);
+		//glDrawElements(GL_TRIANGLE_STRIP, frameBuffer.drawCount, GL_UNSIGNED_SHORT, NULL);
+		//glDisable(GL_BLEND);
+	
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(1.f, 0.0f, 0.f, 1.0f);
 
@@ -381,20 +426,22 @@ int main() {
 
 		spotLight.SetUniform(&deferredPBRShader, 0);
 		dirLight.SetUniform(&deferredPBRShader, 0);
-
+		dirLight.SetShaderMtrx(&deferredPBRShader, 0);
 		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
 
 		deferredPBRShader.Use();
 		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
 
 		deferredPBRShader.SetTrans("view", cam.CalculateViewMtx());
-		deferredPBRShader.SetInt("pointLightNo", 1);
-		deferredPBRShader.SetInt("dirLightNo", 0);
-		deferredPBRShader.SetInt("spotLightNo", 1);
+		deferredPBRShader.SetInt("pointLightNo", 0);
+		deferredPBRShader.SetInt("dirLightNo", 1);
+		deferredPBRShader.SetInt("spotLightNo", 0);
 
 		gBuffer.UseGTextures();
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, depthBuffer.RetrieveBuffer());
 		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
 		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
 		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2

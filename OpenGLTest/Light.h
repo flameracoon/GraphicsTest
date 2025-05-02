@@ -18,6 +18,7 @@ struct Light {
 	glm::vec3  diffuseStrength{1.f};
 	glm::vec3  specularStrength{1.f};
 	virtual void SetUniform(Shader* shader, size_t number);
+	virtual void SetShaderMtrx(Shader* shader, size_t number);
 	float linear{0.09f};
 	float quadratic{ 0.032f };
 };
@@ -26,6 +27,7 @@ struct DirectionalLight:public Light {
 	
 	glm::vec3 direction;
 	void SetUniform(Shader* shader, size_t number);
+	void SetShaderMtrx(Shader* shader, size_t number);
 private:
 	glm::vec3 position;
 	float linear;

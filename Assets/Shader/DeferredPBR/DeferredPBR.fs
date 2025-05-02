@@ -10,7 +10,7 @@ layout(location=3)  uniform sampler2D gReflect;  // Tangent-space light directio
 layout(binding=4)   uniform sampler2D gMaterial;
 
 layout(binding=5)   uniform samplerCube cubeTexture;
-
+layout(binding=6)   uniform sampler2D shadowMap;
 
 
 
@@ -48,7 +48,7 @@ struct DirectionalLight
     vec3 La;            // Ambient light intensity
     vec3 Ld;            // Diffuse light intensity
     vec3 Ls;            // Specular light intensity
-
+    mat4 shadowMtx;
 };
 
 uniform int pointLightNo;
@@ -64,7 +64,7 @@ uniform vec3 lightAmbience;
 uniform mat4 view;  
 vec3 diffuseColor;
 float specularColor;
-
+float shadow=0.f;
 
 //Lighting
 const float PI = 3.14159265358979323846;
@@ -228,7 +228,7 @@ vec3 microFacetDirection(vec3 position, vec3 n,vec3 color,float roughness,int i)
 
     vec3 lightI = directionalLight[i].color;
 
-    vec3 l = normalize((mat3(view) * directionalLight[i].direction));
+    vec3 l = normalize((mat3(view) * -directionalLight[i].direction));
 
 
     vec3 v = normalize(-position);
@@ -258,9 +258,38 @@ vec3 microFacetDirection(vec3 position, vec3 n,vec3 color,float roughness,int i)
 
         // scale light by NdotL
 
-    return (kD*diffuseColor /PI + specBrdf) * lightI * nDotL; 
+    return ((kD * diffuseColor / PI + specBrdf) * lightI * nDotL) * (1.0 - shadow);
 }
+float ShadowCalculation(vec4 fragPosLightSpace,vec3 n,vec3 lightDir)
+{
+        // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
 
+    vec3 l = normalize((mat3(view) * -lightDir));
+    
+    float bias = max(0.05 * (1.0 - dot(n, l)), 0.005);
+
+    float shd = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            shd += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+        }    
+    }
+    shd /= 9.0;
+    if(projCoords.z > 1.0)return 0.0f;
+    return shd;
+}  
 
 void main()
 {   
@@ -281,6 +310,11 @@ void main()
 
     vec3 normalMap=normalize(vec3(texture(gNormal, TexCoords)));
     vec3 positionMap=vec3(texture(gPosition, TexCoords));
+    if(dirLightNo!=0){
+        shadow=ShadowCalculation(directionalLight[0].shadowMtx*vec4(positionMap, 1.0),normalMap,directionalLight[0].direction);
+    }
+    
+    positionMap=vec3(view * vec4(positionMap, 1.0));
 
     for(int i=0;i<pointLightNo;i++){
         newLight+=microfacetModel(positionMap, normalMap,diffuseColor,newMat.g,i);

@@ -218,9 +218,7 @@ void main()
     
      vec4 testColor = texture(gAlbedoSpec, TexCoords);
     if (testColor.x==0&&testColor.y==0.f&&testColor.z==0.f&&testColor.a==0.f){
-    
             discard;;   
-
     }
     diffuseColor =testColor.rgb;
     specularColor =testColor.a;
@@ -228,6 +226,7 @@ void main()
     vec3 envMap = texture(cubeTexture, vec3(texture(gReflect, TexCoords)) ).rgb;
     
     vec3 newLight=diffuseColor*lightAmbience;
+
     for(int i=0;i<pointLightNo;i++){
         newLight+=BlinnPhong(vec3(texture(gPosition, TexCoords)),  vec3(texture(gNormal, TexCoords)),
         light[i],
