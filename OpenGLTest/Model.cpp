@@ -59,34 +59,35 @@ void Mesh::Draw(Shader& shader)
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
     unsigned int heightNr = 1;
+    unsigned int roughNr = 1;
 
     //Set material textures
+    //std::cout << textures.size() << '\n';
+    std::string number;
+    std::string name{};
     for (unsigned int i = 0; i < textures.size(); i++)
     {
        glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
        // retrieve texture number (the N in diffuse_textureN)
-       std::string number;
        TextureType texType = textures[i].RetrieveType();
-       std::string name{};
        switch (texType) {
         case DIFFUSE:
-            name = "diffuse";
-            number = std::to_string(diffuseNr++);
+            number = "texture_diffuse"+ std::to_string(diffuseNr++);
             break;;
         case SPECULAR:
-            name = "specular";
-            number = std::to_string(specularNr++);
+            number = "texture_specular"+std::to_string(specularNr++);
             break;;
         case NORMAL:
-            name = "normal";
-            number = std::to_string(normalNr++);
+            number = "texture_normal"+std::to_string(normalNr++);
             break;;
         case HEIGHT:
-            name = "height";
-            number = std::to_string(heightNr++);
+            number = "texture_ao" + std::to_string(heightNr++);
+            break;;
+        case ROUGHNESS:
+            number = "texture_roughness" + std::to_string(roughNr++);
             break;;
        }
-        shader.SetInt(("texture_" + name + number).c_str(), i);
+        shader.SetInt((number).c_str(), i);
         glBindTexture(GL_TEXTURE_2D, textures[i].RetrieveTexture());
     }
     glActiveTexture(GL_TEXTURE0);
@@ -124,11 +125,30 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
         }
         if (!skip)
         { 
+            std::cout << "Attempting load on:" << std::string{ directory + '/' + str.C_Str() }.c_str() << '\n';
             textures.push_back({ std::string{directory + '/' + str.C_Str()}.c_str(),str.C_Str() });
             textures.back().SetType(typeName);
             textures_loaded.push_back(textures.back());
          }
     }
+    return textures;
+}
+std::vector<Texture> Model::LoadMaterialTextures(std::string fileName, TextureType typeName) {
+
+    std::vector<Texture> textures;
+    for (unsigned int j = 0; j < textures_loaded.size(); j++)
+    {
+        if (std::strcmp(textures_loaded[j].RetrieveName().c_str(), fileName.c_str()) == 0)
+        {
+            textures.push_back(textures_loaded[j]);
+            return textures;;
+        }
+    }
+    std::cout << "Attempting load on:" << std::string{ directory + '/' + fileName }.c_str() << '\n';
+    textures.push_back({ std::string{directory + '/' + fileName}.c_str(),fileName});
+    textures.back().SetType(typeName);
+    textures_loaded.push_back(textures.back());
+
     return textures;
 }
 //Process meshes
@@ -199,9 +219,12 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     // 3. normal maps
     std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, NORMAL);
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    // 4. height maps
-    std::vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, HEIGHT);
+    // 3. AO maps
+    std::vector<Texture> heightMaps = LoadMaterialTextures("ao.jpg",HEIGHT);
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+    std::vector<Texture> roughnessMaps = LoadMaterialTextures("roughness.jpg", ROUGHNESS);
+    textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+
     // return a mesh object created from the extracted mesh data
     return Mesh(vertices, indices, textures);
 }

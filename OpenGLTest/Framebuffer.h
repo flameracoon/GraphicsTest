@@ -112,7 +112,7 @@ private:
 	unsigned int gBuffer;
 	unsigned int rboDepth;
 	//Textures to generate
-	unsigned int gPosition, gNormal, gAlbedoSpec,gReflect;
+	unsigned int gPosition, gNormal, gAlbedoSpec,gReflect,gMaterial;
 	Shader* shader;
 
 };

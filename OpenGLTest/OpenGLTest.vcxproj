@@ -185,10 +185,16 @@
   <ItemGroup>
     <None Include="..\Assets\Shader\DeferredLight\DeferredLight.fs" />
     <None Include="..\Assets\Shader\DeferredLight\DeferredLight.vs" />
+    <None Include="..\Assets\Shader\DeferredPBR\DeferredPBR.fs" />
+    <None Include="..\Assets\Shader\DeferredPBR\DeferredPBR.vs" />
     <None Include="..\Assets\Shader\FrameBuffShader\FrameBuffShader.fs" />
     <None Include="..\Assets\Shader\FrameBuffShader\FrameBuffShader.vs" />
     <None Include="..\Assets\Shader\GBufferShader\GBufferShader.fs" />
     <None Include="..\Assets\Shader\GBufferShader\GBufferShader.vs" />
+    <None Include="..\Assets\Shader\GBuffNormShader\GBuffNormShader.fs" />
+    <None Include="..\Assets\Shader\GBuffNormShader\GBuffNormShader.vs" />
+    <None Include="..\Assets\Shader\GBuffPBRShader\GBuffPBRShader.fs" />
+    <None Include="..\Assets\Shader\GBuffPBRShader\GBuffPBRShader.vs" />
     <None Include="..\Assets\Shader\LightShader\LightShader.fs" />
     <None Include="..\Assets\Shader\LightShader\LightShader.vs" />
     <None Include="..\Assets\Shader\SkyBoxShader\SkyBoxShader.fs" />

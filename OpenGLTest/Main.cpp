@@ -270,6 +270,9 @@ int main() {
 
 	Shader gBufferShader("../Assets/Shader/GBufferShader/GBufferShader.vs", "../Assets/Shader/GBufferShader/GBufferShader.fs");
 	Shader deferredLightShader("../Assets/Shader/DeferredLight/DeferredLight.vs", "../Assets/Shader/DeferredLight/DeferredLight.fs");
+	Shader normalShader("../Assets/Shader/GBuffNormShader/GBuffNormShader.vs", "../Assets/Shader/GBuffNormShader/GBuffNormShader.fs");
+	Shader gBufferPBRShader("../Assets/Shader/GBuffPBRShader/GBuffPBRShader.vs", "../Assets/Shader/GBuffPBRShader/GBuffPBRShader.fs");
+	Shader deferredPBRShader("../Assets/Shader/DeferredPBR/DeferredPBR.vs", "../Assets/Shader/DeferredPBR/DeferredPBR.fs");
 
 	Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	//Tmp vertices
@@ -280,7 +283,10 @@ int main() {
 
 	Texture tex("../Assets/Wife.jpeg", "Tex1");
 	Light light;
+	Light light2;
 	DirectionalLight dirLight;
+	SpotLight spotLight;
+
 	Material material;
 	Skybox cubeMap;
 	cubeMap.InitializeMap(
@@ -311,11 +317,14 @@ int main() {
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 
 		ImGui::Text("Use the slider to move the model:");
-		ImGui::SliderFloat3("Light Position", &dirLight.direction[0], -10.f, 10.f); // vec3 slider
-		ImGui::SliderFloat3("Light Color", &dirLight.color[0], -10.0f, 10.0f); // vec3 slider
-		ImGui::SliderFloat3("Light Ambient", &dirLight.ambientStrength[0], -10.0f, 10.0f); // vec3 slider
-		ImGui::SliderFloat3("Light Diffuse", &dirLight.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
-		ImGui::SliderFloat3("Light Specular", &dirLight.specularStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Position", &light.position[0], -10.f, 10.f); // vec3 slider
+		ImGui::SliderFloat3("Light 2 Position", &spotLight.position[0], -10.f, 10.f); // vec3 slider
+		ImGui::SliderFloat3("Light Direction", &dirLight.direction[0], -10.f, 10.f); // vec3 slider
+
+		ImGui::SliderFloat3("Light Color", &spotLight.color[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Ambient", &spotLight.ambientStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Diffuse", &spotLight.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Specular", &spotLight.specularStrength[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("ModelPos Specular", &modelPos[0], -800.0f, 800.0f); // vec3 slider
 		ImGui::SliderFloat3("CameraPos", &cameraPos[0], -1600.0f, 1600.0f); // vec3 slider
 		ImGui::SliderFloat("Material", &material.reflectivity, 0.f, 1.f); // vec3 slider
@@ -324,7 +333,7 @@ int main() {
 
 		
 
-		//Do deferred shading
+		////Do deferred shading
 		gBuffer.BindGBuffer();
 
 		glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
@@ -337,46 +346,64 @@ int main() {
 		degree += 0.1f;
 
 		//Render skybox
-
-		gBufferShader.Use();
+		material.SetUniform(&gBufferPBRShader);
+		gBufferPBRShader.Use();
 
 
 		//
 
-		gBufferShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-		gBufferShader.SetTrans("view", cam.CalculateViewMtx());
-		gBufferShader.SetVec3("cameraPosition", cam.position);
+		gBufferPBRShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+		gBufferPBRShader.SetTrans("view", cam.CalculateViewMtx());
+		gBufferPBRShader.SetVec3("cameraPosition", cam.position);
 		glm::mat4 model = glm::mat4(1.0f);
 	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-		gBufferShader.SetTrans("model", model);
-		ourModel.Draw(gBufferShader);
+		gBufferPBRShader.SetTrans("model", model);
+		ourModel.Draw(gBufferPBRShader);
+		gBufferPBRShader.Disuse();
 
-		model = glm::mat4{ 1.f };
-		model = glm::translate(model, {1.f,0.f,0.f}) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-		gBufferShader.SetTrans("model", model);
-		ourModel.Draw(gBufferShader);
+		//gBufferShader.Use();
+		//gBufferShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+		//gBufferShader.SetTrans("view", cam.CalculateViewMtx());
+		//gBufferShader.SetVec3("cameraPosition", cam.position);
+		//model = glm::mat4{ 1.f };
+		//model = glm::translate(model, {1.f,0.f,0.f}) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		//gBufferShader.SetTrans("model", model);
+		//ourModel.Draw(gBufferShader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(1.f, 0.0f, 0.f, 1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		dirLight.SetUniform(&deferredLightShader, 0);
-		material.SetUniform(&deferredLightShader);
+		light.color = glm::vec3(1.f, 1.f, 1.f);
+		light.SetUniform(&deferredPBRShader, 0);
+		light2.SetUniform(&deferredPBRShader, 1);
+
+		spotLight.SetUniform(&deferredPBRShader, 0);
+		dirLight.SetUniform(&deferredPBRShader, 0);
 
 		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
 
-		deferredLightShader.Use();
+		deferredPBRShader.Use();
+		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
+
+		deferredPBRShader.SetTrans("view", cam.CalculateViewMtx());
+		deferredPBRShader.SetInt("pointLightNo", 1);
+		deferredPBRShader.SetInt("dirLightNo", 0);
+		deferredPBRShader.SetInt("spotLightNo", 1);
 
 		gBuffer.UseGTextures();
-		glUniform1i(glGetUniformLocation(deferredLightShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
-		glUniform1i(glGetUniformLocation(deferredLightShader.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
-		glUniform1i(glGetUniformLocation(deferredLightShader.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2
-		glUniform1i(glGetUniformLocation(deferredLightShader.ID, "gReflect"), 3);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gReflect"), 3);
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gMaterial"), 4);
+
 		//material.SetUniform(&deferredLightShader);
 		
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBindVertexArray(frameBuffer.vaoId);
@@ -391,8 +418,12 @@ int main() {
 		glBlitFramebuffer(0, 0, 1600, 900, 0, 0, 1600, 900, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		////Render Light
-		//dirLight.SetUniform(&modelShader, 0);
+		//Render Light
+		//glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo); // back to default
+		//glClearColor(0.f, 0.0f, 0.f, 0.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glEnable(GL_DEPTH_TEST);
+		//light.SetUniform(&modelShader, 0);
 		//material.SetUniform(&modelShader);
 
 		//tex.Use();
@@ -414,7 +445,8 @@ int main() {
 		//model = glm::translate(model, {1.f,0.f,0.f}) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		//modelShader.SetTrans("model", model);
 		//ourModel.Draw(modelShader);
-
+		//ImGui::Render();
+		//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		//glBindVertexArray(0);
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
 		//glClearColor(0.f, 0.0f, 1.f, 1.0f);

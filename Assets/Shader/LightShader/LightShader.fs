@@ -121,5 +121,5 @@ void main()
     //Create Reflection
     vec3 envMap = texture(cubeTexture, ReflectDir).rgb;
     
-    FragColor = vec4(mix(DirBlinnPhong(Position, normalize(Normal), directionalLight[0],view),envMap,material.reflectivity),1.0);
+    FragColor = vec4(mix(BlinnPhong(Position, normalize(Normal), light[0],view),envMap,material.reflectivity),1.0);
 }
