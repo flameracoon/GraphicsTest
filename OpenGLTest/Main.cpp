@@ -276,6 +276,7 @@ int main() {
 
 	Shader debugDepthMapShader("../Assets/Shader/DebugDepthMap/DebugDepthMap.vs", "../Assets/Shader/DebugDepthMap/DebugDepthMap.fs");
 	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
+	Shader iradianceShader("../Assets/Shader/IradianceShader/IradianceShader.vs", "../Assets/Shader/IradianceShader/IradianceShader.fs");
 
 	Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	//Tmp vertices
@@ -304,12 +305,23 @@ int main() {
 	//Create a frame buffer
 	FrameBuffer frameBuffer;
 	frameBuffer.InitializeFBO(1600.f, 900.f);
+	FrameBuffer iradianceBuffer;
+	iradianceBuffer.InitializeFBO(1600.f, 900.f);
+
 	frameBuffer.shader = &frameBufferShader;
 	GBuffer gBuffer;
 	DepthBuffer depthBuffer;
 	depthBuffer.InitializeDepthBuffer();
 	gBuffer.InitializeGBuffer();
 
+	//SEt up irradiance map
+	iradianceShader.Use();
+	iradianceShader.SetInt("skybox", 0);
+	iradianceShader.SetTrans("view", glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	iradianceShader.SetTrans("projection", cam.GetPerspMtx());
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	while (!glfwWindowShouldClose(window))
 	{
 		// Start ImGui frame
