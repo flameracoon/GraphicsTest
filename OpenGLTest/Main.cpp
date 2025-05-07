@@ -356,7 +356,8 @@ int main() {
 
 
 		//
-
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		gBufferPBRShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 		gBufferPBRShader.SetTrans("view", cam.CalculateViewMtx());
 		gBufferPBRShader.SetVec3("cameraPosition", cam.position);
@@ -371,6 +372,7 @@ int main() {
 		ourModel.Draw(gBufferPBRShader);
 
 		gBufferPBRShader.Disuse();
+		//glDisable(GL_BLEND);
 
 		//Render to depth map
 		glViewport(0, 0, 1600.f, 900.f);

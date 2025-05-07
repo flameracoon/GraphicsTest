@@ -326,7 +326,7 @@ void main()
         newLight+=microFacetDirection(positionMap, normalMap,diffuseColor,newMat.g,i);
     }
      vec3 color = newLight/ (newLight + vec3(1.0));
-     //color=mix(color,envMap,specularColor);
+    // color=mix(color,envMap,specularColor);
      color = pow(color, vec3(1.0/2.2)); 
     //FragColor = vec4(color, 1.0);
     FragColor = vec4(color,1.0);
