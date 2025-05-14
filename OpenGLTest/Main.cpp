@@ -276,7 +276,7 @@ int main() {
 
 	Shader debugDepthMapShader("../Assets/Shader/DebugDepthMap/DebugDepthMap.vs", "../Assets/Shader/DebugDepthMap/DebugDepthMap.fs");
 	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
-
+	Shader irradianceShader("../Assets/Shader/IrradianceShader/IrradianceShader.vs", "../Assets/Shader/IrradianceShader/IrradianceShader.fs");
 	Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
@@ -305,11 +305,25 @@ int main() {
 	FrameBuffer frameBuffer;
 	frameBuffer.InitializeFBO(1600.f, 900.f);
 	frameBuffer.shader = &frameBufferShader;
+
+	//Set up irradiance
+	IrradianceMap testIrradiance;
+	testIrradiance.InitializeMap();
+
+	FrameBuffer irradianceBuffer;
+	irradianceBuffer.InitializeFBO(32.f, 32.f);
+	glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
+	glBindFramebuffer(GL_FRAMEBUFFER, irradianceBuffer.fbo);
+	testIrradiance.Render(&irradianceShader, cubeMap);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	frameBuffer.shader = &frameBufferShader;
 	GBuffer gBuffer;
 	DepthBuffer depthBuffer;
 	depthBuffer.InitializeDepthBuffer();
 	gBuffer.InitializeGBuffer();
-
+	//Create irradiance map
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		// Start ImGui frame
@@ -429,19 +443,19 @@ int main() {
 		spotLight.SetUniform(&deferredPBRShader, 0);
 		dirLight.SetUniform(&deferredPBRShader, 0);
 		dirLight.SetShaderMtrx(&deferredPBRShader, 0);
-		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
+		testIrradiance.RenderCube(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
 
 		deferredPBRShader.Use();
 		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
 
 		deferredPBRShader.SetTrans("view", cam.CalculateViewMtx());
-		deferredPBRShader.SetInt("pointLightNo", 0);
-		deferredPBRShader.SetInt("dirLightNo", 1);
-		deferredPBRShader.SetInt("spotLightNo", 0);
+		deferredPBRShader.SetInt("pointLightNo", 1);
+		deferredPBRShader.SetInt("dirLightNo", 0);
+		deferredPBRShader.SetInt("spotLightNo", 1);
 
 		gBuffer.UseGTextures();
 		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, testIrradiance.RetrieveID());
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, depthBuffer.RetrieveBuffer());
 		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0

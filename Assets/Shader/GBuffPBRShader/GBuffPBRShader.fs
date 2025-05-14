@@ -32,7 +32,7 @@ void main()
     // store specular intensity in gAlbedoSpec's alpha component
     gAlbedoSpec.a = texture(texture_specular1, TexCoords).r;
     gReflect=ReflectDir;
-    gMaterial.r=texture(texture_ao1, TexCoords).r;
+    gMaterial.r=texture(texture_ao1, TexCoords).g;
     gMaterial.g=texture(texture_roughness1, TexCoords).r;
     gMaterial.b=material.reflectivity;
 

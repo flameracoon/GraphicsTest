@@ -301,15 +301,23 @@ void main()
 
     }
     diffuseColor =testColor.rgb;
+
     specularColor =testColor.a;
     //Create Reflection
     vec3 envMap = texture(cubeTexture, vec3(texture(gReflect, TexCoords)) ).rgb;
     vec3 newMat=vec3(texture(gMaterial, TexCoords));
 
-    vec3 newLight=diffuseColor*lightAmbience*newMat.r;
 
     vec3 normalMap=normalize(vec3(texture(gNormal, TexCoords)));
     vec3 positionMap=vec3(texture(gPosition, TexCoords));
+
+
+        //Further Diffuse calculations for IBL
+    vec3 kD = 1.0 - schlickFresnel(max(dot(normalMap, normalize(-positionMap)), 0.0));
+    kD *= 1.0 - specularColor;	  
+    vec3 diffuse      = kD*texture(cubeTexture, normalMap).rgb * diffuseColor;
+    vec3 newLight=diffuse*lightAmbience*newMat.r;
+
     if(dirLightNo!=0){
         shadow=ShadowCalculation(directionalLight[0].shadowMtx*vec4(positionMap, 1.0),normalMap,directionalLight[0].direction);
     }

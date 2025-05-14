@@ -196,6 +196,8 @@
     <None Include="..\Assets\Shader\GBuffNormShader\GBuffNormShader.vs" />
     <None Include="..\Assets\Shader\GBuffPBRShader\GBuffPBRShader.fs" />
     <None Include="..\Assets\Shader\GBuffPBRShader\GBuffPBRShader.vs" />
+    <None Include="..\Assets\Shader\IrradianceShader\IrradianceShader.fs" />
+    <None Include="..\Assets\Shader\IrradianceShader\IrradianceShader.vs" />
     <None Include="..\Assets\Shader\LightShader\LightShader.fs" />
     <None Include="..\Assets\Shader\LightShader\LightShader.vs" />
     <None Include="..\Assets\Shader\SkyBoxShader\SkyBoxShader.fs" />
