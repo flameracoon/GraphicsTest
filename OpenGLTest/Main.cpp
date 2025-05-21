@@ -229,7 +229,7 @@ int main() {
 
 	//Create window to be displayed
 	GLFWwindow* window = glfwCreateWindow(1600.f, 900.f, "GAM300 Graphics test", NULL, NULL);
-	if(window==NULL){
+	if (window == NULL) {
 		std::cout << "Failed to create window";
 		glfwTerminate();
 		return -1;
@@ -249,10 +249,10 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glViewport(0, 0, 1600.f, 900.f);
-	
+
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	stbi_set_flip_vertically_on_load(true); 
+	stbi_set_flip_vertically_on_load(true);
 
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
@@ -261,11 +261,11 @@ int main() {
 
 	//loadModel("../Assets/backpack/backpack.obj");
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
+
 	//Create Shader
 	Shader skyboxShader("../Assets/Shader/SkyBoxShader/SkyBoxShader.vs", "../Assets/Shader/SkyBoxShader/SkyBoxShader.fs");
 
-	Shader modelShader("../Assets/Shader/LightShader/LightShader.vs","../Assets/Shader/LightShader/LightShader.fs");
+	Shader modelShader("../Assets/Shader/LightShader/LightShader.vs", "../Assets/Shader/LightShader/LightShader.fs");
 	Shader frameBufferShader("../Assets/Shader/FrameBuffShader/FrameBuffShader.vs", "../Assets/Shader/FrameBuffShader/FrameBuffShader.fs");
 
 	Shader gBufferShader("../Assets/Shader/GBufferShader/GBufferShader.vs", "../Assets/Shader/GBufferShader/GBufferShader.fs");
@@ -285,6 +285,14 @@ int main() {
 
 
 	Texture tex("../Assets/Wife.jpeg", "Tex1");
+	//Create texture
+	Texture bpDiffTex("../Assets/backpack/diffuse.jpg", "diffuse");
+	Texture bpNormTex("../Assets/backpack/normal.png", "normal");
+	Texture bpSpecTex("../Assets/backpack/specular.jpg", "metallic");
+	Texture bpRoughTex("../Assets/backpack/roughness.jpg", "roughness");
+	Texture bpAoTex("../Assets/backpack/ao.jpg", "ao");
+	PBRMaterial backpackMat{ &bpDiffTex,&bpSpecTex,&bpRoughTex ,&bpAoTex ,&bpNormTex };
+	//Assign backpatMat
 	Light light;
 	Light light2;
 	DirectionalLight dirLight;
@@ -398,12 +406,12 @@ int main() {
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
-		ourModel.Draw(depthMapShader);
+		ourModel.PBRDraw(depthMapShader, backpackMat);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
-		ourModel.Draw(depthMapShader);
+		ourModel.PBRDraw(depthMapShader, backpackMat);
 		depthMapShader.Disuse();
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

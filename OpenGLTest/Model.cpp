@@ -97,13 +97,50 @@ void Mesh::Draw(Shader& shader)
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+void Mesh::PBRDraw(Shader& shader, PBRMaterial const& mat) {
 
+
+    //Set material textures
+    //std::cout << textures.size() << '\n';
+    std::string number;
+    std::string name{};
+    //Bind albedo
+    glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
+    shader.SetInt("texture_diffuse1", 0);
+    glBindTexture(GL_TEXTURE_2D, mat.albedo->RetrieveTexture());
+    //Bind sepcular
+    glActiveTexture(GL_TEXTURE1); // activate proper texture unit before binding
+    shader.SetInt("texture_specular1", 1);
+    glBindTexture(GL_TEXTURE_2D, mat.specular->RetrieveTexture());
+    //Bind normal
+    glActiveTexture(GL_TEXTURE2); // activate proper texture unit before binding
+    shader.SetInt("texture_normal1", 2);
+    glBindTexture(GL_TEXTURE_2D, mat.normal->RetrieveTexture());
+    //Bind Metallic map
+    glActiveTexture(GL_TEXTURE4); // activate proper texture unit before binding
+    shader.SetInt("texture_ao1", 4);
+    glBindTexture(GL_TEXTURE_2D, mat.ao->RetrieveTexture());
+    //Bind roughness
+    glActiveTexture(GL_TEXTURE5); // activate proper texture unit before binding
+    shader.SetInt("texture_roughness1", 5);
+    glBindTexture(GL_TEXTURE_2D, mat.roughness->RetrieveTexture());
+    
+    glActiveTexture(GL_TEXTURE0);
+
+    // draw mesh
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
 void Model::Draw(Shader& shader)
 {
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].Draw(shader);
 }
-
+void Model::PBRDraw(Shader& shader, PBRMaterial const& pbrMat) {
+    for (unsigned int i = 0; i < meshes.size(); i++)
+        meshes[i].PBRDraw(shader,pbrMat);
+}
 
 
 std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType typeName)
