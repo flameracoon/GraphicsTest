@@ -386,19 +386,19 @@ int main() {
 		glm::mat4 model = glm::mat4(1.0f);
 	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
-		ourModel.Draw(gBufferPBRShader);
+		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
-		ourModel.Draw(gBufferPBRShader);
+		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 
 		gBufferPBRShader.Disuse();
 		//glDisable(GL_BLEND);
 
 		//Render to depth map
 		glViewport(0, 0, 1600.f, 900.f);
-		glCullFace(GL_FRONT);
+		glCullFace(GL_FRONT);	
 		dirLight.SetShaderMtrx(&depthMapShader, 0);
 		depthMapShader.Use();
 		glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer.depthMapFBO);
@@ -457,9 +457,9 @@ int main() {
 		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
 
 		deferredPBRShader.SetTrans("view", cam.CalculateViewMtx());
-		deferredPBRShader.SetInt("pointLightNo", 1);
-		deferredPBRShader.SetInt("dirLightNo", 0);
-		deferredPBRShader.SetInt("spotLightNo", 1);
+		deferredPBRShader.SetInt("pointLightNo", 0);
+		deferredPBRShader.SetInt("dirLightNo", 1);
+		deferredPBRShader.SetInt("spotLightNo", 0);
 
 		gBuffer.UseGTextures();
 		glActiveTexture(GL_TEXTURE5);
