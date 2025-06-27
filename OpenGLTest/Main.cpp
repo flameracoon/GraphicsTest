@@ -451,7 +451,8 @@ int main() {
 		spotLight.SetUniform(&deferredPBRShader, 0);
 		dirLight.SetUniform(&deferredPBRShader, 0);
 		dirLight.SetShaderMtrx(&deferredPBRShader, 0);
-		testIrradiance.RenderCube(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
+		//testIrradiance.RenderCube(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
+		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx()); 
 
 		deferredPBRShader.Use();
 		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
