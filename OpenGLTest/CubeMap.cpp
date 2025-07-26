@@ -120,3 +120,57 @@ void Skybox::Render(Shader* shader, glm::mat4 const& view, glm::mat4 const& proj
     shader->Disuse();
 
 }
+
+void IrradianceMap::InitializeMap() {
+    
+    LoadCubeModel();
+    //Set up irradiance texture
+   glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 32, 32, 0, GL_RGB, GL_FLOAT, nullptr);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+void IrradianceMap::Render(Shader* irradianceShader,Skybox sb) {
+    irradianceShader->Use();
+    irradianceShader->SetInt("environmentMap", 0);
+    irradianceShader->SetTrans("projection", captureProjection);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, sb.RetrieveID());
+
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        irradianceShader->SetTrans("view", captureViews[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texID, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+    }
+
+    irradianceShader->Disuse();
+
+}
+void IrradianceMap::RenderCube(Shader* shader, glm::mat4 const& view, glm::mat4 const& projection) {
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
+    shader->Use();
+    shader->SetTrans("view", view);
+    shader->SetTrans("projection", projection);
+    // skybox cube
+    glBindVertexArray(VAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    shader->Disuse();
+}

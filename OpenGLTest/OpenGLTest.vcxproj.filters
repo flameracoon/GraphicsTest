@@ -146,5 +146,11 @@
     <None Include="..\Assets\Shader\GBuffPBRShader\GBuffPBRShader.vs" />
     <None Include="..\Assets\Shader\DeferredPBR\DeferredPBR.fs" />
     <None Include="..\Assets\Shader\DeferredPBR\DeferredPBR.vs" />
+    <None Include="..\Assets\Shader\DepthMap\DepthMap.fs" />
+    <None Include="..\Assets\Shader\DepthMap\DepthMap.vs" />
+    <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.fs" />
+    <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.vs" />
+    <None Include="..\Assets\Shader\IrradianceShader\IrradianceShader.fs" />
+    <None Include="..\Assets\Shader\IrradianceShader\IrradianceShader.vs" />
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "Material.h"
 #define MAX_BONE_INFLUENCE 4
 
 struct Vertex {
@@ -30,6 +31,7 @@ public:
 
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
     void Draw(Shader& shader);
+    void PBRDraw(Shader& shader, PBRMaterial const& mat);
 private:
     //  render data
     unsigned int VAO, VBO, EBO;
@@ -46,6 +48,7 @@ public:
         LoadModel(path);
     }
     void Draw(Shader& shader);
+    void PBRDraw(Shader& shader, PBRMaterial const& pbrMat);
 private:
     std::vector<Texture> textures_loaded;
     // model data

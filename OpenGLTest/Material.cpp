@@ -28,3 +28,10 @@ void Material::SetUniform(Shader* shader) {
 
     shader->Disuse();
 }
+PBRMaterial::PBRMaterial(Texture* albedoTex ,
+                         Texture* specularTex ,
+                         Texture* roughnessTex ,
+                         Texture* aoTex ,
+                         Texture* normalTex ) :
+                          albedo{albedoTex}, specular{ specularTex }, roughness{ roughnessTex }, ao{ aoTex }, normal{ normalTex }
+{}

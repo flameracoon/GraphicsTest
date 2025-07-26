@@ -6,7 +6,7 @@
 
 class CubeMap {
 public:
-	void InitializeMap(std::vector<std::string>);
+	virtual void InitializeMap(std::vector<std::string>);
 	void LoadCubeTexture(std::vector<std::string>);
 	void LoadCubeModel();
 	int RetrieveID();
@@ -18,4 +18,22 @@ class Skybox :public CubeMap {
 
 public:
 	void Render(Shader*, glm::mat4 const& view, glm::mat4 const& projection);
+};
+
+class IrradianceMap :public CubeMap {
+	public:
+		void InitializeMap();
+		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		glm::mat4 captureViews[6] =
+		{
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+		};
+		void Render(Shader* irradianceShader, Skybox sb);
+		void RenderCube(Shader*, glm::mat4 const& view, glm::mat4 const& projection);
+
 };

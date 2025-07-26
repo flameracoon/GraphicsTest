@@ -124,7 +124,7 @@ public:
 
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
-		std::cout << "Created shader";
+		std::cout << "Created shader\n";
 	}
 	/************************************************************************/
 	/*!

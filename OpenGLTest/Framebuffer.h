@@ -116,3 +116,15 @@ private:
 	Shader* shader;
 
 };
+
+class DepthBuffer {
+public:
+	void InitializeDepthBuffer();
+	void BindDepthBuffer();
+	unsigned int RetrieveBuffer() { return depthMap;; }
+	void UseGBufferShader() { shader->Use();; }
+	unsigned int depthMapFBO;
+private:
+	unsigned int depthMap;
+	Shader* shader;
+};
