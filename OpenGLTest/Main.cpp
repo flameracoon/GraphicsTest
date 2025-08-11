@@ -229,7 +229,7 @@ int main() {
 
 	//Create window to be displayed
 	GLFWwindow* window = glfwCreateWindow(1600.f, 900.f, "GAM300 Graphics test", NULL, NULL);
-	if(window==NULL){
+	if (window == NULL) {
 		std::cout << "Failed to create window";
 		glfwTerminate();
 		return -1;
@@ -249,10 +249,10 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glViewport(0, 0, 1600.f, 900.f);
-	
+
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	stbi_set_flip_vertically_on_load(true); 
+	stbi_set_flip_vertically_on_load(true);
 
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
@@ -261,11 +261,11 @@ int main() {
 
 	//loadModel("../Assets/backpack/backpack.obj");
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
+
 	//Create Shader
 	Shader skyboxShader("../Assets/Shader/SkyBoxShader/SkyBoxShader.vs", "../Assets/Shader/SkyBoxShader/SkyBoxShader.fs");
 
-	Shader modelShader("../Assets/Shader/LightShader/LightShader.vs","../Assets/Shader/LightShader/LightShader.fs");
+	Shader modelShader("../Assets/Shader/LightShader/LightShader.vs", "../Assets/Shader/LightShader/LightShader.fs");
 	Shader frameBufferShader("../Assets/Shader/FrameBuffShader/FrameBuffShader.vs", "../Assets/Shader/FrameBuffShader/FrameBuffShader.fs");
 
 	Shader gBufferShader("../Assets/Shader/GBufferShader/GBufferShader.vs", "../Assets/Shader/GBufferShader/GBufferShader.fs");
@@ -286,6 +286,14 @@ int main() {
 
 
 	Texture tex("../Assets/Wife.jpeg", "Tex1");
+	//Create texture
+	Texture bpDiffTex("../Assets/backpack/diffuse.jpg", "diffuse");
+	Texture bpNormTex("../Assets/backpack/normal.png", "normal");
+	Texture bpSpecTex("../Assets/backpack/specular.jpg", "metallic");
+	Texture bpRoughTex("../Assets/backpack/roughness.jpg", "roughness");
+	Texture bpAoTex("../Assets/backpack/ao.jpg", "ao");
+	PBRMaterial backpackMat{ &bpDiffTex,&bpSpecTex,&bpRoughTex ,&bpAoTex ,&bpNormTex };
+	//Assign backpatMat
 	Light light;
 	Light light2;
 	DirectionalLight dirLight;
@@ -307,6 +315,19 @@ int main() {
 	frameBuffer.InitializeFBO(1600.f, 900.f);
 	FrameBuffer iradianceBuffer;
 	iradianceBuffer.InitializeFBO(1600.f, 900.f);
+
+	frameBuffer.shader = &frameBufferShader;
+
+	//Set up irradiance
+	IrradianceMap testIrradiance;
+	testIrradiance.InitializeMap();
+
+	FrameBuffer irradianceBuffer;
+	irradianceBuffer.InitializeFBO(32.f, 32.f);
+	glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
+	glBindFramebuffer(GL_FRAMEBUFFER, irradianceBuffer.fbo);
+	testIrradiance.Render(&irradianceShader, cubeMap);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	frameBuffer.shader = &frameBufferShader;
 	GBuffer gBuffer;
@@ -376,19 +397,19 @@ int main() {
 		glm::mat4 model = glm::mat4(1.0f);
 	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
-		ourModel.Draw(gBufferPBRShader);
+		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
-		ourModel.Draw(gBufferPBRShader);
+		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 
 		gBufferPBRShader.Disuse();
 		//glDisable(GL_BLEND);
 
 		//Render to depth map
 		glViewport(0, 0, 1600.f, 900.f);
-		glCullFace(GL_FRONT);
+		glCullFace(GL_FRONT);	
 		dirLight.SetShaderMtrx(&depthMapShader, 0);
 		depthMapShader.Use();
 		glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer.depthMapFBO);
@@ -396,12 +417,12 @@ int main() {
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
-		ourModel.Draw(depthMapShader);
+		ourModel.PBRDraw(depthMapShader, backpackMat);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
-		ourModel.Draw(depthMapShader);
+		ourModel.PBRDraw(depthMapShader, backpackMat);
 		depthMapShader.Disuse();
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -441,7 +462,8 @@ int main() {
 		spotLight.SetUniform(&deferredPBRShader, 0);
 		dirLight.SetUniform(&deferredPBRShader, 0);
 		dirLight.SetShaderMtrx(&deferredPBRShader, 0);
-		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
+		//testIrradiance.RenderCube(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
+		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx()); 
 
 		deferredPBRShader.Use();
 		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
@@ -453,7 +475,7 @@ int main() {
 
 		gBuffer.UseGTextures();
 		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, testIrradiance.RetrieveID());
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, depthBuffer.RetrieveBuffer());
 		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
