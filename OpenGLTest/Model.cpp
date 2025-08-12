@@ -189,16 +189,17 @@ std::vector<Texture> Model::LoadMaterialTextures(std::string fileName, TextureTy
     return textures;
 }
 //Process meshes
-Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
+Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x4& transform) {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
-
+    const aiMatrix3x3 transform3x3 = aiMatrix3x3(transform);
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
         glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
         // positions
+        mesh->mVertices[i] = transform * mesh->mVertices[i];
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
@@ -206,6 +207,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
         // normals
         if (mesh->HasNormals())
         {
+            mesh->mNormals[i] = transform3x3 * mesh->mNormals[i];
             vector.x = mesh->mNormals[i].x;
             vector.y = mesh->mNormals[i].y;
             vector.z = mesh->mNormals[i].z;
@@ -215,6 +217,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
         // texture coordinates
         if (mesh->mTextureCoords[0]) //Check if got texturre coords
         {
+           // std::cout << "LOADING TEXTURE\n";
             glm::vec2 vec;
             // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
             // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
@@ -248,37 +251,38 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
     // 1. diffuse maps
-    std:: vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, DIFFUSE);
-    textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    // 2. specular maps
-    std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
-    textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    // 3. normal maps
-    std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, NORMAL);
-    textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    // 3. AO maps
-    std::vector<Texture> heightMaps = LoadMaterialTextures("ao.jpg",HEIGHT);
-    textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-    std::vector<Texture> roughnessMaps = LoadMaterialTextures("roughness.jpg", ROUGHNESS);
-    textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+    //std:: vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, DIFFUSE);
+    //textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+    //// 2. specular maps
+    //std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
+    //textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+    //// 3. normal maps
+    //std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, NORMAL);
+    //textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+    //// 3. AO maps
+    //std::vector<Texture> heightMaps = LoadMaterialTextures("ao.jpg",HEIGHT);
+    //textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+    //std::vector<Texture> roughnessMaps = LoadMaterialTextures("roughness.jpg", ROUGHNESS);
+    //textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
 
     // return a mesh object created from the extracted mesh data
     return Mesh(vertices, indices, textures);
 }
 
 //Process all nodes of the mesh
-void Model::ProcessNode(aiNode* node, const aiScene* scene)
+void Model::ProcessNode(aiNode* node, const aiScene* scene, const aiMatrix4x4& transform)
 {
+    const aiMatrix4x4 accTransform = transform * node->mTransformation ;
     // process all the node's meshes (if any)
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(ProcessMesh(mesh, scene));
+        meshes.push_back(ProcessMesh(mesh, scene, accTransform));
     }
     // then do the same for each of its children
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        ProcessNode(node->mChildren[i], scene);
+        ProcessNode(node->mChildren[i], scene, accTransform);
     }
 }
 
@@ -294,7 +298,7 @@ void Model::LoadModel(std::string path)
         return;
     }
     directory = path.substr(0, path.find_last_of('/'));
-    ProcessNode(scene->mRootNode, scene);
+    ProcessNode(scene->mRootNode, scene, aiMatrix4x4{});
     std::cout << "Loaded model";
 
 }

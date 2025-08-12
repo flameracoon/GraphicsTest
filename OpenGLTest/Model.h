@@ -56,8 +56,8 @@ private:
     std::string directory;
 
     void LoadModel(std::string path);
-    void ProcessNode(aiNode* node, const aiScene* scene);
-    Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+    void ProcessNode(aiNode* node, const aiScene* scene, const aiMatrix4x4& transform);
+    Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x4& transform);
     std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type,
         TextureType typeName);
     std::vector<Texture> LoadMaterialTextures(std::string path, TextureType typeName);
