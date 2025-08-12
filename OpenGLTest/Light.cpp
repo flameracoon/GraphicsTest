@@ -142,7 +142,7 @@ void DirectionalLight::SetShaderMtrx(Shader* shader, size_t number) {
     s << "directionalLight[" << number << "].shadowMtx";
     //Calculate shadow mtx
     float near_plane = 0.1f, far_plane = 100.0f;
-    glm::mat4 lightSpaceMatrix = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane) *glm::lookAt(this->direction,
+    glm::mat4 lightSpaceMatrix = glm::ortho(-100.0f, 10.0f, -100.0f, 100.0f, near_plane, far_plane) *glm::lookAt(this->direction,
                                                            glm::vec3(0.0f, 0.0f, 0.0f),
                                                               glm::vec3(0.0f, 1.0f, 0.0f));
     shader->SetTrans(s.str(), lightSpaceMatrix);
