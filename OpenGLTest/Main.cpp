@@ -252,7 +252,7 @@ int main() {
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	stbi_set_flip_vertically_on_load(true);
+	//stbi_set_flip_vertically_on_load(true);
 
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
@@ -276,11 +276,11 @@ int main() {
 
 	Shader debugDepthMapShader("../Assets/Shader/DebugDepthMap/DebugDepthMap.vs", "../Assets/Shader/DebugDepthMap/DebugDepthMap.fs");
 	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
-	Shader irradianceShader("../Assets/Shader/IrradianceShader/IrradianceShader.vs", "../Assets/Shader/IrradianceShader/IrradianceShader.fs");
-	Model animationModel(std::string{ "../Assets/dragon/Dragon 2.5_fbx.fbx" }.c_str());
-	Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
+	Shader iradianceShader("../Assets/Shader/IradianceShader/IradianceShader.vs", "../Assets/Shader/IradianceShader/IradianceShader.fs");
 
-	
+	//Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
+	Model ourModel(std::string{ "../Assets/FbxTest/backpack.fbx" }.c_str());
+
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -315,6 +315,9 @@ int main() {
 	//Create a frame buffer
 	FrameBuffer frameBuffer;
 	frameBuffer.InitializeFBO(1600.f, 900.f);
+	FrameBuffer iradianceBuffer;
+	iradianceBuffer.InitializeFBO(1600.f, 900.f);
+
 	frameBuffer.shader = &frameBufferShader;
 
 	//Set up irradiance
@@ -325,7 +328,7 @@ int main() {
 	irradianceBuffer.InitializeFBO(32.f, 32.f);
 	glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
 	glBindFramebuffer(GL_FRAMEBUFFER, irradianceBuffer.fbo);
-	testIrradiance.Render(&irradianceShader, cubeMap);
+	testIrradiance.Render(&iradianceShader, cubeMap);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	frameBuffer.shader = &frameBufferShader;
@@ -333,8 +336,15 @@ int main() {
 	DepthBuffer depthBuffer;
 	depthBuffer.InitializeDepthBuffer();
 	gBuffer.InitializeGBuffer();
-	//Create irradiance map
-	
+
+	//SEt up irradiance map
+	iradianceShader.Use();
+	iradianceShader.SetInt("skybox", 0);
+	iradianceShader.SetTrans("view", glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	iradianceShader.SetTrans("projection", cam.GetPerspMtx());
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	while (!glfwWindowShouldClose(window))
 	{
 		// Start ImGui frame
@@ -387,13 +397,13 @@ int main() {
 		gBufferPBRShader.SetTrans("view", cam.CalculateViewMtx());
 		gBufferPBRShader.SetVec3("cameraPosition", cam.position);
 		glm::mat4 model = glm::mat4(1.0f);
-	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 		animationModel.Draw(gBufferPBRShader);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 
@@ -408,12 +418,12 @@ int main() {
 		glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer.depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
 		ourModel.PBRDraw(depthMapShader, backpackMat);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
 		ourModel.PBRDraw(depthMapShader, backpackMat);
 		depthMapShader.Disuse();
