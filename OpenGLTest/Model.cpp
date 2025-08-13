@@ -1,4 +1,6 @@
 #include "Model.h"
+#define MAX_BONE_INFLUENCE 4
+
 Mesh::Mesh(std::vector<Vertex> newVert, std::vector<unsigned int> newIndices, std::vector<Texture> newTextures)
 	:vertices{newVert}
 	,indices{newIndices}
@@ -188,6 +190,7 @@ std::vector<Texture> Model::LoadMaterialTextures(std::string fileName, TextureTy
 
     return textures;
 }
+
 //Process meshes
 Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Vertex> vertices;
@@ -262,6 +265,10 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Texture> roughnessMaps = LoadMaterialTextures("roughness.jpg", ROUGHNESS);
     textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
 
+
+    // Extract bones and weights here
+    ExtractBoneWeights(mesh, vertices);
+
     // return a mesh object created from the extracted mesh data
     return Mesh(vertices, indices, textures);
 }
@@ -280,6 +287,68 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
     {
         ProcessNode(node->mChildren[i], scene);
     }
+    //Include the animations for the .fbx model if any
+    if (scene->HasAnimations()) {
+        for (unsigned int i = 0; i < scene->mNumAnimations; ++i) {
+            animations.emplace_back(scene->mAnimations[i], scene, this);
+        }
+    }
+}
+
+void Model::ExtractBoneWeights(aiMesh* mesh, std::vector<Vertex>& vertices)
+{
+    for (unsigned int i = 0; i < mesh->mNumBones; i++)
+    {
+        std::string boneName = mesh->mBones[i]->mName.C_Str();
+        int boneID{};
+
+        // New bone
+        if (bones_loaded.find(boneName) == bones_loaded.end())
+        {
+            boneID = static_cast<int>(bones_loaded.size());
+            bones_loaded[boneName] = boneID;
+
+            // Add new BoneInfo
+            BoneInfo boneInfo;
+            boneInfo.offsetMatrix = ConvertToGLM(mesh->mBones[i]->mOffsetMatrix);
+            bone_info.push_back(boneInfo);
+        }
+        else
+        {
+            boneID = bones_loaded[boneName];
+        }
+
+        aiBone* bone = mesh->mBones[i];
+
+        // Assign weights to vertices
+        for (unsigned int j = 0; j < bone->mNumWeights; ++j)
+        {
+            int vertexID = bone->mWeights[j].mVertexId;
+            float weight = bone->mWeights[j].mWeight;
+
+            for (unsigned int k = 0; k < MAX_BONE_INFLUENCE; k++)
+            {
+                if (vertices[vertexID].m_Weights[k] == 0.0f)
+                {
+                    vertices[vertexID].m_BoneIDs[k] = boneID;
+                    vertices[vertexID].m_Weights[k] = weight;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+glm::mat4 Model::ConvertToGLM(const aiMatrix4x4& original)
+{
+    glm::mat4 transformed{};
+
+    transformed[0][0] = original.a1; transformed[1][0] = original.a2; transformed[2][0] = original.a3; transformed[3][0] = original.a4;
+    transformed[0][1] = original.b1; transformed[1][1] = original.b2; transformed[2][1] = original.b3; transformed[3][1] = original.b4;
+    transformed[0][2] = original.c1; transformed[1][2] = original.c2; transformed[2][2] = original.c3; transformed[3][2] = original.c4;
+    transformed[0][3] = original.d1; transformed[1][3] = original.d2; transformed[2][3] = original.d3; transformed[3][3] = original.d4;
+
+    return transformed;
 }
 
 
@@ -297,4 +366,8 @@ void Model::LoadModel(std::string path)
     ProcessNode(scene->mRootNode, scene);
     std::cout << "Loaded model";
 
+}
+
+Animation::Animation(const aiAnimation* animation, const aiScene* scene, Model* model)
+{
 }

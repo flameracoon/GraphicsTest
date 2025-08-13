@@ -277,7 +277,10 @@ int main() {
 	Shader debugDepthMapShader("../Assets/Shader/DebugDepthMap/DebugDepthMap.vs", "../Assets/Shader/DebugDepthMap/DebugDepthMap.fs");
 	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
 	Shader irradianceShader("../Assets/Shader/IrradianceShader/IrradianceShader.vs", "../Assets/Shader/IrradianceShader/IrradianceShader.fs");
+	Model animationModel(std::string{ "../Assets/dragon/Dragon 2.5_fbx.fbx" }.c_str());
 	Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
+
+	
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -387,6 +390,7 @@ int main() {
 	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
+		animationModel.Draw(gBufferPBRShader);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-4.f }) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
