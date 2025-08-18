@@ -400,7 +400,7 @@ int main() {
 	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
-		animationModel.Draw(gBufferPBRShader);
+		//animationModel.Draw(gBufferPBRShader);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down

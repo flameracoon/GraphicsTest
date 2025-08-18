@@ -11,6 +11,8 @@
 //Forward Declarations
 class Model;
 class Bone;
+class Animation;
+class Animator;
 
 //Possibility to optimize this?
 struct BoneInfo
@@ -55,45 +57,48 @@ private:
 class Animation
 {
 public:
-    Animation(const aiAnimation* animation, const aiScene* scene, Model* model);
+    Animation(const aiAnimation* anim, const aiScene* scene, std::unordered_map<std::string, int>& boneMap);
 
-    float GetTicksPerSecond() const;
+    const Bone* FindBone(const std::string& name);
     float GetDuration() const;
-    const std::string& GetName() const;
-
-    const std::unordered_map<std::string, Bone*>& GetBoneMap() const;
-    aiNode* GetRootNode() const;
+    float GetTicksPerSecond() const;
+    const aiNode* GetRootNode() const;
 
 private:
     float m_Duration;
     float m_TicksPerSecond;
     std::string m_Name;
-    std::unordered_map<std::string, Bone*> m_BoneMap;
+    std::unordered_map<std::string, Bone> m_Bones;
     aiNode* m_RootNode;
 };
 
 class Animator
 {
 public:
-    Animator(Animation* animation);
+    Animator(Animation* animation, std::vector<BoneInfo>& boneInfo, std::unordered_map<std::string, int>& boneMap, glm::mat4 globalInverse);
 
-    void UpdateAnimation(float deltaTime);
-    void CalculateBoneTransform(const aiNode* node, const glm::mat4& parentTransform);
-
-    std::vector<glm::mat4> GetFinalBoneMatrices();
+    void Update(float dt);
+    const std::vector<glm::mat4>& GetFinalBoneMatrices() const;
 
 private:
     Animation* m_CurrentAnimation;
-    float m_CurrentTime;
     std::vector<glm::mat4> m_FinalBoneMatrices;
+    std::vector<BoneInfo>& m_BoneInfo;
+    std::unordered_map<std::string, int>& m_BoneMap;
+    glm::mat4 m_GlobalInverse;
+    float m_CurrentTime = 0.0f;
+    
+    void CalculateBoneTransform(const aiNode* node, const glm::mat4& parentTransform);
+    glm::mat4 ConvertToGLMMat4(const aiMatrix4x4& from);
 };
 
 class Bone
 {
 public:
+    Bone() = default;
     Bone(const std::string& name, int id, const aiNodeAnim* channel);
 
-    glm::mat4 Interpolate(float time);
+    glm::mat4 Interpolate(float time) const;
 
     const std::string& GetName() const;
     int GetID() const;
@@ -103,21 +108,20 @@ private:
     int m_ID;
 
     std::vector<glm::vec3> m_Positions;
-    std::vector<float> m_PositionTimestamps;
+    std::vector<float> m_PosTimes;
 
     std::vector<glm::quat> m_Rotations;
-    std::vector<float> m_RotationTimestamps;
+    std::vector<float> m_RotTimes;
 
     std::vector<glm::vec3> m_Scales;
-    std::vector<float> m_ScaleTimestamps;
+    std::vector<float> m_ScaleTimes;
 
-    int FindPositionIndex(float animationTime);
-    int FindRotationIndex(float animationTime);
-    int FindScalingIndex(float animationTime);
+    int FindIndex(const std::vector<float>& times, float animTime) const;
+    float GetFactor(float start, float end, float time) const;
 
-    glm::mat4 InterpolatePosition(float time);
-    glm::mat4 InterpolateRotation(float time);
-    glm::mat4 InterpolateScale(float time);
+    glm::mat4 InterpolatePosition(float time) const;
+    glm::mat4 InterpolateRotation(float time) const;
+    glm::mat4 InterpolateScale(float time) const;
 };
 
 class Model
@@ -132,7 +136,7 @@ public:
 private:
     std::vector<Texture> textures_loaded;
     std::unordered_map<std::string, int> bones_loaded;
-    std::vector<BoneInfo> bone_info;
+    std::vector<BoneInfo> bone_info; // Only contains the matrices of the bones not the bone itself
     // model data
     std::vector<Mesh> meshes;
     std::vector<Animation> animations;
@@ -142,14 +146,13 @@ private:
     void LoadModel(std::string path);
     
     void ExtractBoneWeights(aiMesh* mesh, std::vector<Vertex>& vertices);
-    void ProcessNode(aiNode* node, const aiScene* scene);
+    
     void ProcessNode(aiNode* node, const aiScene* scene, const aiMatrix4x4& transform);
-    Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
     Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene, const aiMatrix4x4& transform);
     std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type,
         TextureType typeName);
     std::vector<Texture> LoadMaterialTextures(std::string path, TextureType typeName);
 
     //Utility
-    glm::mat4 ConvertToGLM(const aiMatrix4x4& original);
+    glm::mat4 ConvertToGLMMat4(const aiMatrix4x4& original);
 };
