@@ -66,6 +66,9 @@
     <ClCompile Include="Framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -128,6 +131,9 @@
     <ClInclude Include="CubeMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\Shader\LightShader\LightShader.fs" />
@@ -150,7 +156,9 @@
     <None Include="..\Assets\Shader\DepthMap\DepthMap.vs" />
     <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.fs" />
     <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.vs" />
-    <None Include="..\Assets\Shader\IrradianceShader\IrradianceShader.fs" />
-    <None Include="..\Assets\Shader\IrradianceShader\IrradianceShader.vs" />
+    <None Include="..\Assets\Shader\IradianceShader\IradianceShader.fs" />
+    <None Include="..\Assets\Shader\IradianceShader\IradianceShader.vs" />
+    <None Include="..\Assets\Shader\DeferredPBRCartoon\DeferredPBRCartoon.fs" />
+    <None Include="..\Assets\Shader\DeferredPBRCartoon\DeferredPBRCartoon.vs" />
   </ItemGroup>
 </Project>

@@ -21,6 +21,7 @@
 #include "GraphicsDebuffer.h"
 #include "CubeMap.h"
 #include "Framebuffer.h"
+#include "Mesh.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -247,7 +248,7 @@ int main() {
 		// configure global opengl state
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glViewport(0, 0, 1600.f, 900.f);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -273,6 +274,7 @@ int main() {
 	Shader normalShader("../Assets/Shader/GBuffNormShader/GBuffNormShader.vs", "../Assets/Shader/GBuffNormShader/GBuffNormShader.fs");
 	Shader gBufferPBRShader("../Assets/Shader/GBuffPBRShader/GBuffPBRShader.vs", "../Assets/Shader/GBuffPBRShader/GBuffPBRShader.fs");
 	Shader deferredPBRShader("../Assets/Shader/DeferredPBR/DeferredPBR.vs", "../Assets/Shader/DeferredPBR/DeferredPBR.fs");
+	Shader deferredPBRShaderCartoon("../Assets/Shader/DeferredPBRCartoon/DeferredPBRCartoon.vs", "../Assets/Shader/DeferredPBRCartoon/DeferredPBRCartoon.fs");
 
 	Shader debugDepthMapShader("../Assets/Shader/DebugDepthMap/DebugDepthMap.vs", "../Assets/Shader/DebugDepthMap/DebugDepthMap.fs");
 	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
@@ -336,6 +338,8 @@ int main() {
 	DepthBuffer depthBuffer;
 	depthBuffer.InitializeDepthBuffer();
 	gBuffer.InitializeGBuffer();
+	Cube cube;
+	cube.CreateMesh();
 
 	//SEt up irradiance map
 	iradianceShader.Use();
@@ -357,6 +361,7 @@ int main() {
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 
 		ImGui::Text("Use the slider to move the model:");
+
 		ImGui::SliderFloat3("Light Position", &light.position[0], -10.f, 10.f); // vec3 slider
 		ImGui::SliderFloat3("Light 2 Position", &spotLight.position[0], -10.f, 10.f); // vec3 slider
 		ImGui::SliderFloat3("Light Direction", &dirLight.direction[0], -10.f, 10.f); // vec3 slider
@@ -365,13 +370,14 @@ int main() {
 		ImGui::SliderFloat3("Light Ambient", &spotLight.ambientStrength[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Diffuse", &spotLight.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Specular", &spotLight.specularStrength[0], -10.0f, 10.0f); // vec3 slider
-		ImGui::SliderFloat3("ModelPos Specular", &modelPos[0], -800.0f, 800.0f); // vec3 slider
+		ImGui::SliderFloat3("ModelPos Specular", &modelPos[0], -1600.f, 1600.f); // vec3 slider
 		ImGui::SliderFloat3("CameraPos", &cameraPos[0], -1600.0f, 1600.0f); // vec3 slider
 		ImGui::SliderFloat("Material", &material.reflectivity, 0.f, 1.f); // vec3 slider
 
 		ImGui::End();
 
-		
+		//glCullFace(GL_BACK);
+
 
 		////Do deferred shading
 		gBuffer.BindGBuffer();
@@ -406,9 +412,20 @@ int main() {
 		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
+				//glDisable(GL_BLEND);
 
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(10.f, 10.f, 10.f));	// it's a bit too big for our scene, so scale it down
+		gBufferPBRShader.SetTrans("model", model);
+
+
+		glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
+		gBufferPBRShader.SetInt("texture_diffuse1", 0);
+		glBindTexture(GL_TEXTURE_2D, backpackMat.albedo->RetrieveTexture());
+		cube.DrawMesh();
+
+		//Draw cube
 		gBufferPBRShader.Disuse();
-		//glDisable(GL_BLEND);
 
 		//Render to depth map
 		glViewport(0, 0, 1600.f, 900.f);
@@ -418,14 +435,22 @@ int main() {
 		glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer.depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(10.f, 10.f, 10.f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
-		ourModel.PBRDraw(depthMapShader, backpackMat);
+		cube.DrawMesh();
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		//depthMapShader.SetTrans("model", model);
+		//ourModel.PBRDraw(depthMapShader, backpackMat);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
 		ourModel.PBRDraw(depthMapShader, backpackMat);
+
+
+
+
 		depthMapShader.Disuse();
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -459,33 +484,33 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		light.color = glm::vec3(1.f, 1.f, 1.f);
-		light.SetUniform(&deferredPBRShader, 0);
-		light2.SetUniform(&deferredPBRShader, 1);
+		light.SetUniform(&deferredPBRShaderCartoon, 0);
+		light2.SetUniform(&deferredPBRShaderCartoon, 1);
 
-		spotLight.SetUniform(&deferredPBRShader, 0);
-		dirLight.SetUniform(&deferredPBRShader, 0);
-		dirLight.SetShaderMtrx(&deferredPBRShader, 0);
+		spotLight.SetUniform(&deferredPBRShaderCartoon, 0);
+		dirLight.SetUniform(&deferredPBRShaderCartoon, 0);
+		dirLight.SetShaderMtrx(&deferredPBRShaderCartoon, 0);
 		//testIrradiance.RenderCube(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
 		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx()); 
 
-		deferredPBRShader.Use();
-		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
+		deferredPBRShaderCartoon.Use();
+		deferredPBRShaderCartoon.SetVec3("lightAmbience", Light::ambientStrength);
 
-		deferredPBRShader.SetTrans("view", cam.CalculateViewMtx());
-		deferredPBRShader.SetInt("pointLightNo", 0);
-		deferredPBRShader.SetInt("dirLightNo", 1);
-		deferredPBRShader.SetInt("spotLightNo", 0);
+		deferredPBRShaderCartoon.SetTrans("view", cam.CalculateViewMtx());
+		deferredPBRShaderCartoon.SetInt("pointLightNo", 0);
+		deferredPBRShaderCartoon.SetInt("dirLightNo", 1);
+		deferredPBRShaderCartoon.SetInt("spotLightNo", 0);
 
 		gBuffer.UseGTextures();
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, testIrradiance.RetrieveID());
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, depthBuffer.RetrieveBuffer());
-		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
-		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
-		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2
-		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gReflect"), 3);
-		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gMaterial"), 4);
+		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
+		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
+		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2
+		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gReflect"), 3);
+		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gMaterial"), 4);
 
 		//material.SetUniform(&deferredLightShader);
 		
