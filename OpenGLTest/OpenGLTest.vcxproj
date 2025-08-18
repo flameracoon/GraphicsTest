@@ -153,6 +153,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="stb_image.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="GraphicsDebuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
@@ -184,6 +186,8 @@
     <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.vs" />
     <None Include="..\Assets\Shader\DeferredLight\DeferredLight.fs" />
     <None Include="..\Assets\Shader\DeferredLight\DeferredLight.vs" />
+    <None Include="..\Assets\Shader\DeferredPBRCartoon\DeferredPBRCartoon.fs" />
+    <None Include="..\Assets\Shader\DeferredPBRCartoon\DeferredPBRCartoon.vs" />
     <None Include="..\Assets\Shader\DeferredPBR\DeferredPBR.fs" />
     <None Include="..\Assets\Shader\DeferredPBR\DeferredPBR.vs" />
     <None Include="..\Assets\Shader\DepthMap\DepthMap.fs" />
