@@ -185,6 +185,8 @@
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Assets\Shader\AnimationTestShader\AnimationTestShader.fs" />
+    <None Include="..\Assets\Shader\AnimationTestShader\AnimationTestShader.vs" />
     <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.fs" />
     <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.vs" />
     <None Include="..\Assets\Shader\DeferredLight\DeferredLight.fs" />

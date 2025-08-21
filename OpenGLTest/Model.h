@@ -14,6 +14,13 @@ class Bone;
 class Animation;
 class Animator;
 
+struct NodeData
+{
+    std::string name;
+    glm::mat4 transformation;
+    std::vector<NodeData> children;
+};
+
 //Possibility to optimize this?
 struct BoneInfo
 {
@@ -57,39 +64,45 @@ private:
 class Animation
 {
 public:
+    
     Animation(const aiAnimation* anim, const aiScene* scene, std::unordered_map<std::string, int>& boneMap);
 
-    const Bone* FindBone(const std::string& name);
+    const Bone* FindBone(const std::string& name) const;
     float GetDuration() const;
     float GetTicksPerSecond() const;
-    const aiNode* GetRootNode() const;
+    const NodeData& GetRootNode() const;
 
 private:
     float m_Duration;
     float m_TicksPerSecond;
     std::string m_Name;
     std::unordered_map<std::string, Bone> m_Bones;
-    aiNode* m_RootNode;
+
+   
+    NodeData CopyNodeHierarchy(const aiNode* src);
+    NodeData m_RootNode;
+
+    glm::mat4 ConvertToGLMMat4(const aiMatrix4x4& original);
 };
 
 class Animator
 {
 public:
-    Animator(Animation* animation, std::vector<BoneInfo>& boneInfo, std::unordered_map<std::string, int>& boneMap, glm::mat4 globalInverse);
+    Animator(const Animation* animation, const std::vector<BoneInfo>& boneInfo, const std::unordered_map<std::string, int>& boneMap, const glm::mat4& globalInverse);
 
     void Update(float dt);
     const std::vector<glm::mat4>& GetFinalBoneMatrices() const;
 
 private:
-    Animation* m_CurrentAnimation;
+    const Animation* m_CurrentAnimation;
     std::vector<glm::mat4> m_FinalBoneMatrices;
-    std::vector<BoneInfo>& m_BoneInfo;
-    std::unordered_map<std::string, int>& m_BoneMap;
+    std::vector<BoneInfo> m_BoneInfo;
+    std::unordered_map<std::string, int> m_BoneMap;
     glm::mat4 m_GlobalInverse;
     float m_CurrentTime = 0.0f;
     
-    void CalculateBoneTransform(const aiNode* node, const glm::mat4& parentTransform);
-    glm::mat4 ConvertToGLMMat4(const aiMatrix4x4& from);
+    void CalculateBoneTransform(const NodeData& node, const glm::mat4& parentTransform);
+    glm::mat4 ConvertToGLMMat4(const aiMatrix4x4& original);
 };
 
 class Bone
@@ -133,14 +146,30 @@ public:
     }
     void Draw(Shader& shader);
     void PBRDraw(Shader& shader, PBRMaterial const& pbrMat);
+    void DrawAnimation(Shader& shader, PBRMaterial const& pbrMat, const std::vector<glm::mat4>& boneMatrices);
+
+    const std::vector<Animation>& GetAnimations() const { return animations; }
+    const std::vector<BoneInfo>& GetBoneInfo() const { return bone_info; }
+    const std::unordered_map<std::string, int>& GetBoneMap() const { return bones_loaded; }
+    glm::mat4 GetGlobalInverse() const { return globalInverseTransform; }
+
+    /// <summary>
+    /// TEMPORARY HERE
+    /// </summary>
+    std::vector<Animation> animations;
+
+   // void RetrieveAnimationIndex(unsigned int index) const;
 private:
     std::vector<Texture> textures_loaded;
     std::unordered_map<std::string, int> bones_loaded;
     std::vector<BoneInfo> bone_info; // Only contains the matrices of the bones not the bone itself
     // model data
     std::vector<Mesh> meshes;
-    std::vector<Animation> animations;
+    
     std::string directory;
+
+    //For animation purposes
+    glm::mat4 globalInverseTransform;
     
 
     void LoadModel(std::string path);
@@ -155,4 +184,59 @@ private:
 
     //Utility
     glm::mat4 ConvertToGLMMat4(const aiMatrix4x4& original);
+};
+
+class AnimatedEntity
+{
+public:
+    AnimatedEntity(Model* model) : m_Model(model)
+    {
+        if (!m_Model->GetAnimations().empty())
+        {
+            m_Animator = std::make_unique<Animator>(
+               &(m_Model->GetAnimations()[0]),
+                m_Model->GetBoneInfo(),
+                m_Model->GetBoneMap(),
+                m_Model->GetGlobalInverse()
+            );
+        }
+        else
+        {
+            ///Throw warning here
+        }
+    }
+
+    void PlayAnimation(unsigned int index)
+    {
+        if (index < m_Model->GetAnimations().size())
+        {
+           m_Animator = std::make_unique<Animator>(
+                &m_Model->GetAnimations()[index],
+                m_Model->GetBoneInfo(),
+                m_Model->GetBoneMap(),
+                m_Model->GetGlobalInverse()
+           );
+        }
+        else
+        {
+            ///Throw warning here
+        }
+    }
+
+    void Update(float dt)
+    {
+        if (m_Animator) m_Animator->Update(dt);
+    }
+       
+    void Draw(Shader& shader, const PBRMaterial& pbrMat)
+    {
+        if (m_Animator)
+            m_Model->DrawAnimation(shader, pbrMat, m_Animator->GetFinalBoneMatrices());
+        else
+            m_Model->DrawAnimation(shader, pbrMat, std::vector<glm::mat4>()); // static mesh
+    }
+
+private:
+    Model* m_Model;
+    std::unique_ptr<Animator> m_Animator;
 };

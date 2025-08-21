@@ -144,6 +144,15 @@ void Model::PBRDraw(Shader& shader, PBRMaterial const& pbrMat) {
         meshes[i].PBRDraw(shader,pbrMat);
 }
 
+void Model::DrawAnimation(Shader& shader, PBRMaterial const& pbrMat ,const std::vector<glm::mat4>& boneMatrices)
+{
+    for (int i = 0; i < boneMatrices.size(); i++)
+        shader.SetTrans("bones[" + std::to_string(i) + "]", glm::mat4(1.f));
+        //shader.SetMat4("bones[" + std::to_string(i) + "]", boneMatrices[i]);
+    for (unsigned int i = 0; i < meshes.size(); i++)
+        meshes[i].PBRDraw(shader, pbrMat);
+}
+
 
 std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType typeName)
 {
@@ -303,18 +312,28 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, const aiMatrix4x4& t
 
 void Model::ExtractBoneWeights(aiMesh* mesh, std::vector<Vertex>& vertices)
 {
+   // if (mesh->mNumBones == 0)
+   //     std::cout << "No Bones Detected" << std::endl;
+
+    for (auto& v : vertices)
+    {
+        for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+        {
+            v.m_BoneIDs[i] = -1;    // use -1 to indicate "no bone"
+            v.m_Weights[i] = 0.0f;
+        }
+    }
+
     for (unsigned int i = 0; i < mesh->mNumBones; i++)
     {
         std::string boneName = mesh->mBones[i]->mName.C_Str();
         int boneID{};
 
-        // New bone
         if (bones_loaded.find(boneName) == bones_loaded.end())
         {
             boneID = static_cast<int>(bones_loaded.size());
             bones_loaded[boneName] = boneID;
 
-            // Add new BoneInfo
             BoneInfo boneInfo;
             boneInfo.offsetMatrix = ConvertToGLMMat4(mesh->mBones[i]->mOffsetMatrix);
             bone_info.push_back(boneInfo);
@@ -341,6 +360,19 @@ void Model::ExtractBoneWeights(aiMesh* mesh, std::vector<Vertex>& vertices)
                     break;
                 }
             }
+        }
+    }
+
+    // normalize weights (optional, but recommended)
+    for (auto& v : vertices)
+    {
+        float total = 0.0f;
+        for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+            total += v.m_Weights[i];
+        if (total > 0.0f)
+        {
+            for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+                v.m_Weights[i] /= total;
         }
     }
 }
@@ -510,11 +542,37 @@ Animation::Animation(const aiAnimation* anim, const aiScene* scene, std::unorder
 
         m_Bones[boneName] = Bone(boneName, boneMap[boneName], channel);
     }
-
-    m_RootNode = scene->mRootNode;
+    m_RootNode = CopyNodeHierarchy(scene->mRootNode);
 }
 
-const Bone* Animation::FindBone(const std::string& name)
+NodeData Animation::CopyNodeHierarchy(const aiNode* src)
+{
+    NodeData node;
+    node.name = src->mName.C_Str();
+    node.transformation = ConvertToGLMMat4(src->mTransformation);
+
+    node.children.reserve(src->mNumChildren);
+    for (unsigned int i = 0; i < src->mNumChildren; i++)
+    {
+        node.children.push_back(CopyNodeHierarchy(src->mChildren[i]));
+    }
+
+    return node;
+}
+
+glm::mat4 Animation::ConvertToGLMMat4(const aiMatrix4x4& original)
+{
+    glm::mat4 transformed{};
+
+    transformed[0][0] = original.a1; transformed[1][0] = original.a2; transformed[2][0] = original.a3; transformed[3][0] = original.a4;
+    transformed[0][1] = original.b1; transformed[1][1] = original.b2; transformed[2][1] = original.b3; transformed[3][1] = original.b4;
+    transformed[0][2] = original.c1; transformed[1][2] = original.c2; transformed[2][2] = original.c3; transformed[3][2] = original.c4;
+    transformed[0][3] = original.d1; transformed[1][3] = original.d2; transformed[2][3] = original.d3; transformed[3][3] = original.d4;
+
+    return transformed;
+}
+
+const Bone* Animation::FindBone(const std::string& name) const
 {
     std::unordered_map<std::string, Bone>::const_iterator it = m_Bones.find(name);
     return it != m_Bones.end() ? &it->second : nullptr;
@@ -524,16 +582,16 @@ float Animation::GetDuration() const { return m_Duration; }
 
 float Animation::GetTicksPerSecond() const { return m_TicksPerSecond; }
 
-const aiNode* Animation::GetRootNode() const { return m_RootNode; }
+const NodeData& Animation::GetRootNode() const { return m_RootNode; }
 
 /*----------------------------------------------------------------------------------------------*/
 /*-----------------------------------------ANIMATOR---------------------------------------------*/
 /*----------------------------------------------------------------------------------------------*/
 
-Animator::Animator(Animation* animation, std::vector<BoneInfo>& boneInfo, std::unordered_map<std::string, int>& boneMap, glm::mat4 globalInverse)
+Animator::Animator(const Animation* animation, const std::vector<BoneInfo>& boneInfo, const std::unordered_map<std::string, int>& boneMap, const glm::mat4& globalInverse)
     : m_CurrentAnimation(animation), m_BoneInfo(boneInfo), m_BoneMap(boneMap), m_GlobalInverse(globalInverse)
 {
-    const int MAX_BONES{ 100 };
+    const int MAX_BONES{ 200 };
     m_FinalBoneMatrices.resize(MAX_BONES, glm::mat4(1.0f));
 }
 
@@ -555,10 +613,10 @@ const std::vector<glm::mat4>& Animator::GetFinalBoneMatrices() const
     return m_FinalBoneMatrices;
 }
 
-void Animator::CalculateBoneTransform(const aiNode* node, const glm::mat4& parentTransform)
+void Animator::CalculateBoneTransform(const NodeData& node, const glm::mat4& parentTransform)
 {
-    std::string nodeName(node->mName.C_Str());
-    glm::mat4 nodeTransform = ConvertToGLMMat4(node->mTransformation);
+    std::string nodeName(node.name);
+    glm::mat4 nodeTransform = node.transformation;
 
     const Bone* bone = m_CurrentAnimation->FindBone(nodeName);
     if (bone)
@@ -573,10 +631,14 @@ void Animator::CalculateBoneTransform(const aiNode* node, const glm::mat4& paren
         int index = m_BoneMap[nodeName];
         m_FinalBoneMatrices[index] = m_GlobalInverse * globalTransform * m_BoneInfo[index].offsetMatrix;
     }
-
-    for (unsigned int i = 0; i < node->mNumChildren; i++)
+    else
     {
-        CalculateBoneTransform(node->mChildren[i], globalTransform);
+        ///There shouldnt be any unrecognized bones here
+    }
+
+    for (const NodeData& child : node.children)
+    {
+        CalculateBoneTransform(child, globalTransform);
     }
 }
 

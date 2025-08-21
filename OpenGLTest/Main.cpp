@@ -276,12 +276,19 @@ int main() {
 	Shader deferredPBRShader("../Assets/Shader/DeferredPBR/DeferredPBR.vs", "../Assets/Shader/DeferredPBR/DeferredPBR.fs");
 	Shader deferredPBRShaderCartoon("../Assets/Shader/DeferredPBRCartoon/DeferredPBRCartoon.vs", "../Assets/Shader/DeferredPBRCartoon/DeferredPBRCartoon.fs");
 
+	Shader animationTestShader("../Assets/Shader/AnimationTestShader/AnimationTestShader.vs", "../Assets/Shader/AnimationTestShader/AnimationTestShader.fs");
+
 	Shader debugDepthMapShader("../Assets/Shader/DebugDepthMap/DebugDepthMap.vs", "../Assets/Shader/DebugDepthMap/DebugDepthMap.fs");
 	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
 	Shader iradianceShader("../Assets/Shader/IradianceShader/IradianceShader.vs", "../Assets/Shader/IradianceShader/IradianceShader.fs");
 
 	//Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	Model ourModel(std::string{ "../Assets/FbxTest/backpack.fbx" }.c_str());
+	Model dragonModel(std::string{ "../Assets/dragon/Dragon 2.5_fbx.fbx"}.c_str());
+	Model dragonAnimatedModel(std::string{ "../Assets/dragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx" }.c_str());
+
+	dragonModel.animations = dragonAnimatedModel.animations;
+	//Model mechaModel(std::string{ "../Assets/mecha/Neck_Mech_Walker_by_3DHaupt.fbx" }.c_str());
 
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
@@ -297,6 +304,20 @@ int main() {
 	Texture bpRoughTex("../Assets/backpack/roughness.jpg", "roughness");
 	Texture bpAoTex("../Assets/backpack/ao.jpg", "ao");
 	PBRMaterial backpackMat{ &bpDiffTex,&bpSpecTex,&bpRoughTex ,&bpAoTex ,&bpNormTex };
+
+	Texture dragonDiffTex("../Assets/dragon/textures/Dragon_ground_color.jpg", "diffuse");
+	Texture dragonNormTex("../Assets/dragon/textures/Dragon_Nor.jpg", "normal");
+	Texture dragonSpecTex("../Assets/backpack/specular.jpg", "metallic");
+	Texture dragonRoughTex("../Assets/dragon/textures/Dragon_Bump_Col2.jpg", "roughness");
+	Texture dragonAoTex("../Assets/backpack/ao.jpg", "ao");
+	PBRMaterial dragonMat{ &dragonDiffTex,&bpSpecTex,&dragonRoughTex ,&bpAoTex ,&dragonNormTex };
+
+	Texture mechaDiffTex("../Assets/mecha/textures/walker_color.jpg", "diffuse");
+	Texture mechaNormTex("../Assets/mecha/textures/walker_nmap.jpg", "normal");
+	Texture mechaSpecTex("../Assets/mecha/ref.jpg", "metallic");
+	Texture mechaRoughTex("../Assets/mecha/textures/walker_rough.jpg", "roughness");
+	Texture mechaAoTex("../Assets/backpack/ao.jpg", "ao");
+	PBRMaterial mechaMat{ &mechaDiffTex,&mechaSpecTex,&mechaRoughTex ,&mechaAoTex ,&mechaNormTex };
 	//Assign backpatMat
 	Light light;
 	Light light2;
@@ -349,8 +370,14 @@ int main() {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//Animation Setup
+	AnimatedEntity dragonTest(&dragonModel);
+
 	while (!glfwWindowShouldClose(window))
 	{
+		deltaTime += 0.1667f;
+
 		// Start ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -391,42 +418,63 @@ int main() {
 
 		degree += 0.1f;
 
+		/*----------------------ANIMATION STUFF------------------*/
+		material.SetUniform(&animationTestShader);
+		animationTestShader.Use();
+
+		animationTestShader.SetMat4("projection", cam.CalculatePerspMtx());
+		animationTestShader.SetMat4("view", cam.CalculateViewMtx());
+		animationTestShader.SetVec3("cameraPosition", cam.position);
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		animationTestShader.SetMat4("model", model);
+		///dragonAnimatedModel.DrawAnimation(animationTestShader, dragonMat);
+		glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
+		animationTestShader.SetInt("texture_diffuse1", 0);
+		glBindTexture(GL_TEXTURE_2D, dragonMat.albedo->RetrieveTexture());
+		///
+		//dragonTest.Update(deltaTime);
+		dragonTest.Draw(animationTestShader,dragonMat);
+		///
+		//mechaTest.Draw(animationTestShader, dragonMat);
+		animationTestShader.Disuse();
+
+		/*-------------------------------------------------------*/
+
 		//Render skybox
 		material.SetUniform(&gBufferPBRShader);
 		gBufferPBRShader.Use();
 
-
-		//
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		gBufferPBRShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 		gBufferPBRShader.SetTrans("view", cam.CalculateViewMtx());
 		gBufferPBRShader.SetVec3("cameraPosition", cam.position);
-		glm::mat4 model = glm::mat4(1.0f);
-	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
-		gBufferPBRShader.SetTrans("model", model);
-		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
-		//animationModel.Draw(gBufferPBRShader);
+		
+	   // model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		//gBufferPBRShader.SetTrans("model", model);
+		//ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
-		gBufferPBRShader.SetTrans("model", model);
-		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
+		
+
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		//gBufferPBRShader.SetTrans("model", model);
+		//ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 				//glDisable(GL_BLEND);
 
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(10.f, 10.f, 10.f));	// it's a bit too big for our scene, so scale it down
-		gBufferPBRShader.SetTrans("model", model);
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(10.f, 10.f, 10.f));	// it's a bit too big for our scene, so scale it down
+		//gBufferPBRShader.SetTrans("model", model);
 
 
 		glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
 		gBufferPBRShader.SetInt("texture_diffuse1", 0);
 		glBindTexture(GL_TEXTURE_2D, backpackMat.albedo->RetrieveTexture());
 		cube.DrawMesh();
-
-		//Draw cube
 		gBufferPBRShader.Disuse();
 
+		//Draw cube
 		//Render to depth map
 		glViewport(0, 0, 1600.f, 900.f);
 		glCullFace(GL_FRONT);	
