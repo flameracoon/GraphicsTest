@@ -90,7 +90,7 @@ class Animator
 public:
     Animator(const Animation* animation, const std::vector<BoneInfo>& boneInfo, const std::unordered_map<std::string, int>& boneMap, const glm::mat4& globalInverse);
 
-    void Update(float dt);
+    void Update(float dt, glm::mat4 parentTransform);
     const std::vector<glm::mat4>& GetFinalBoneMatrices() const;
 
 private:
@@ -98,7 +98,7 @@ private:
     std::vector<glm::mat4> m_FinalBoneMatrices;
     std::vector<BoneInfo> m_BoneInfo;
     std::unordered_map<std::string, int> m_BoneMap;
-    glm::mat4 m_GlobalInverse;
+    glm::mat4 m_GlobalInverse{ 1.f };
     float m_CurrentTime = 0.0f;
     
     void CalculateBoneTransform(const NodeData& node, const glm::mat4& parentTransform);
@@ -169,7 +169,7 @@ private:
     std::string directory;
 
     //For animation purposes
-    glm::mat4 globalInverseTransform;
+    glm::mat4 globalInverseTransform{ 1.f };
     
 
     void LoadModel(std::string path);
@@ -223,9 +223,9 @@ public:
         }
     }
 
-    void Update(float dt)
+    void Update(float dt, glm::mat4 parentTransform)
     {
-        if (m_Animator) m_Animator->Update(dt);
+        if (m_Animator) m_Animator->Update(dt,parentTransform);
     }
        
     void Draw(Shader& shader, const PBRMaterial& pbrMat)

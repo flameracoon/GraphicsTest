@@ -373,10 +373,11 @@ int main() {
 
 	//Animation Setup
 	AnimatedEntity dragonTest(&dragonModel);
+	dragonTest.PlayAnimation(0);
 
 	while (!glfwWindowShouldClose(window))
 	{
-		deltaTime += 0.1667f;
+		deltaTime += 0.0001667f/8.f;
 
 		// Start ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -434,6 +435,7 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, dragonMat.albedo->RetrieveTexture());
 		///
 		//dragonTest.Update(deltaTime);
+		dragonTest.Update(deltaTime, model);
 		dragonTest.Draw(animationTestShader,dragonMat);
 		///
 		//mechaTest.Draw(animationTestShader, dragonMat);

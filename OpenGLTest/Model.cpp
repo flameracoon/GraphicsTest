@@ -147,8 +147,8 @@ void Model::PBRDraw(Shader& shader, PBRMaterial const& pbrMat) {
 void Model::DrawAnimation(Shader& shader, PBRMaterial const& pbrMat ,const std::vector<glm::mat4>& boneMatrices)
 {
     for (int i = 0; i < boneMatrices.size(); i++)
-        shader.SetTrans("bones[" + std::to_string(i) + "]", glm::mat4(1.f));
-        //shader.SetMat4("bones[" + std::to_string(i) + "]", boneMatrices[i]);
+        shader.SetMat4("bones[" + std::to_string(i) + "]", boneMatrices[i]);
+        //shader.SetTrans("bones[" + std::to_string(i) + "]", glm::mat4(1.f));
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].PBRDraw(shader, pbrMat);
 }
@@ -363,7 +363,6 @@ void Model::ExtractBoneWeights(aiMesh* mesh, std::vector<Vertex>& vertices)
         }
     }
 
-    // normalize weights (optional, but recommended)
     for (auto& v : vertices)
     {
         float total = 0.0f;
@@ -595,7 +594,7 @@ Animator::Animator(const Animation* animation, const std::vector<BoneInfo>& bone
     m_FinalBoneMatrices.resize(MAX_BONES, glm::mat4(1.0f));
 }
 
-void Animator::Update(float dt)
+void Animator::Update(float dt, glm::mat4 parentTransform)
 {
     if (!m_CurrentAnimation)
     {
@@ -605,7 +604,7 @@ void Animator::Update(float dt)
     m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
     m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
 
-    CalculateBoneTransform(m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f));
+    CalculateBoneTransform(m_CurrentAnimation->GetRootNode(), parentTransform);
 }
 
 const std::vector<glm::mat4>& Animator::GetFinalBoneMatrices() const
