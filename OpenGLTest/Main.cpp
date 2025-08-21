@@ -284,10 +284,13 @@ int main() {
 
 	//Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	Model ourModel(std::string{ "../Assets/FbxTest/backpack.fbx" }.c_str());
+
+	/*----------------------------------------------ANIMATION STUFF-------------------------------------------------*/
 	Model dragonModel(std::string{ "../Assets/dragon/Dragon 2.5_fbx.fbx"}.c_str());
 	Model dragonAnimatedModel(std::string{ "../Assets/dragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx" }.c_str());
 
 	dragonModel.animations = dragonAnimatedModel.animations;
+	/*----------------------------------------------------------------------------------------------------------*/
 	//Model mechaModel(std::string{ "../Assets/mecha/Neck_Mech_Walker_by_3DHaupt.fbx" }.c_str());
 
 	//Tmp vertices
@@ -305,6 +308,8 @@ int main() {
 	Texture bpAoTex("../Assets/backpack/ao.jpg", "ao");
 	PBRMaterial backpackMat{ &bpDiffTex,&bpSpecTex,&bpRoughTex ,&bpAoTex ,&bpNormTex };
 
+	/*----------------------------------SEAN STUFF----------------------------------------*/
+
 	Texture dragonDiffTex("../Assets/dragon/textures/Dragon_ground_color.jpg", "diffuse");
 	Texture dragonNormTex("../Assets/dragon/textures/Dragon_Nor.jpg", "normal");
 	Texture dragonSpecTex("../Assets/backpack/specular.jpg", "metallic");
@@ -318,6 +323,8 @@ int main() {
 	Texture mechaRoughTex("../Assets/mecha/textures/walker_rough.jpg", "roughness");
 	Texture mechaAoTex("../Assets/backpack/ao.jpg", "ao");
 	PBRMaterial mechaMat{ &mechaDiffTex,&mechaSpecTex,&mechaRoughTex ,&mechaAoTex ,&mechaNormTex };
+
+	/*-------------------------------------------------------------------------------------*/
 	//Assign backpatMat
 	Light light;
 	Light light2;
@@ -371,7 +378,7 @@ int main() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	//Animation Setup
+	///Animation Setup
 	AnimatedEntity dragonTest(&dragonModel);
 	dragonTest.PlayAnimation(0);
 
@@ -429,7 +436,6 @@ int main() {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		animationTestShader.SetMat4("model", model);
-		///dragonAnimatedModel.DrawAnimation(animationTestShader, dragonMat);
 		glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
 		animationTestShader.SetInt("texture_diffuse1", 0);
 		glBindTexture(GL_TEXTURE_2D, dragonMat.albedo->RetrieveTexture());
