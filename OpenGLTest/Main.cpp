@@ -286,12 +286,12 @@ int main() {
 	Model ourModel(std::string{ "../Assets/FbxTest/backpack.fbx" }.c_str());
 
 	/*----------------------------------------------ANIMATION STUFF-------------------------------------------------*/
-	Model dragonModel(std::string{ "../Assets/dragon/Dragon 2.5_fbx.fbx"}.c_str());
-	Model dragonAnimatedModel(std::string{ "../Assets/dragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx" }.c_str());
+	//Model dragonModel(std::string{ "../Assets/dragon/Dragon 2.5_fbx.fbx"}.c_str());
+	//Model dragonAnimatedModel(std::string{ "../Assets/dragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx" }.c_str());
 
-	dragonModel.animations = dragonAnimatedModel.animations;
+	//dragonModel.animations = dragonAnimatedModel.animations;
 	/*----------------------------------------------------------------------------------------------------------*/
-	//Model mechaModel(std::string{ "../Assets/mecha/Neck_Mech_Walker_by_3DHaupt.fbx" }.c_str());
+	Model mechaModel(std::string{ "../Assets/mecha/Neck_Mech_Walker_by_3DHaupt.fbx" }.c_str());
 
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
@@ -441,10 +441,9 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, dragonMat.albedo->RetrieveTexture());
 		///
 		//dragonTest.Update(deltaTime);
-		dragonTest.Update(deltaTime, model);
-		dragonTest.Draw(animationTestShader,dragonMat);
+		//dragonTest.Update(deltaTime, model);
+		//dragonTest.Draw(animationTestShader,dragonMat);
 		///
-		//mechaTest.Draw(animationTestShader, dragonMat);
 		animationTestShader.Disuse();
 
 		/*-------------------------------------------------------*/
@@ -459,8 +458,9 @@ int main() {
 		gBufferPBRShader.SetTrans("view", cam.CalculateViewMtx());
 		gBufferPBRShader.SetVec3("cameraPosition", cam.position);
 		
-	   // model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
-		//gBufferPBRShader.SetTrans("model", model);
+	    model = glm::translate(model, modelPos/100.f)*glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		gBufferPBRShader.SetTrans("model", model);
+		mechaModel.PBRDraw(gBufferPBRShader, mechaMat);
 		//ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 
 		
