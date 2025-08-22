@@ -20,11 +20,15 @@ out vec2 TexCoords;
 out vec3 Normal;
 out vec3 ReflectDir;
 out mat3 tangentToWorld;
+out float shaderType;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 cameraPosition;
+
+//Debug con
+uniform float uShaderType;
 
 void main()
 {
@@ -47,5 +51,6 @@ void main()
     FragPos = vec3(model * vec4(aPos, 1.0));
     gl_Position = projection * VertexPositionInView; 
 
-    TexCoords = aTexCoords;    
+    TexCoords = aTexCoords;  
+    shaderType=uShaderType;
 }

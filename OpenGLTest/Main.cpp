@@ -248,7 +248,7 @@ int main() {
 		// configure global opengl state
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glViewport(0, 0, 1600.f, 900.f);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -279,7 +279,7 @@ int main() {
 	Shader debugDepthMapShader("../Assets/Shader/DebugDepthMap/DebugDepthMap.vs", "../Assets/Shader/DebugDepthMap/DebugDepthMap.fs");
 	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
 	Shader iradianceShader("../Assets/Shader/IradianceShader/IradianceShader.vs", "../Assets/Shader/IradianceShader/IradianceShader.fs");
-
+	Shader defaultDraw("../Assets/Shader/DefaultDraw/DefaultDraw.vs", "../Assets/Shader/DefaultDraw/DefaultDraw.fs");
 	//Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	Model ourModel(std::string{ "../Assets/FbxTest/backpack.fbx" }.c_str());
 
@@ -340,7 +340,12 @@ int main() {
 	gBuffer.InitializeGBuffer();
 	Cube cube;
 	cube.CreateMesh();
-
+	Sphere sphere;
+	sphere.CreateMesh();
+	DebugCube debugCube;
+	debugCube.CreateMesh();
+	DebugCircle debugCircle;
+	debugCircle.CreateMesh();
 	//SEt up irradiance map
 	iradianceShader.Use();
 	iradianceShader.SetInt("skybox", 0);
@@ -395,6 +400,7 @@ int main() {
 		material.SetUniform(&gBufferPBRShader);
 		gBufferPBRShader.Use();
 
+		gBufferPBRShader.SetFloat("uShaderType", 0.f);
 
 		//
 		//glEnable(GL_BLEND);
@@ -414,7 +420,7 @@ int main() {
 				//glDisable(GL_BLEND);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(10.f, 10.f, 10.f));	// it's a bit too big for our scene, so scale it down
+		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 
 
@@ -423,6 +429,44 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, backpackMat.albedo->RetrieveTexture());
 		cube.DrawMesh();
 
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
+		gBufferPBRShader.SetTrans("model", model);
+		gBufferPBRShader.SetFloat("uShaderType", 1.f);
+		debugCube.DrawMesh();
+
+
+		model = glm::mat4(1.0f);
+		glm::mat4 trY = glm::mat4(1.0f), trX = glm::mat4(1.0f);
+		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
+		trY = model * glm::rotate(trY, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		trX = model * glm::rotate(trX, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		float distance = glm::length(cam.position-glm::vec3{0.f,0.f,0.f});
+		float l = glm::sqrt(glm::pow(distance, 2.f) - glm::pow(20.f, 2.f));
+		float radiusPrime = (l * 20.f) / distance;
+		float t = glm::sqrt(glm::pow(20.f, (float)2) -
+			glm::pow(radiusPrime, (float)2));
+		t = t / distance;
+
+		glm::vec3 centerPrime{ glm::vec3{0.f,0.f,0.f} + t * (cam.position - glm::vec3{0.f,0.f,0.f})};
+		glm::mat4 trS = glm::mat4(1.0f);
+		trS = glm::translate(trS,centerPrime) * glm::scale(trS, glm::vec3(radiusPrime, radiusPrime, radiusPrime)) * debugCircle.RotateZtoV(cam.position - glm::vec3{ 0.f,0.f,0.f });
+
+		gBufferPBRShader.SetTrans("model", model);
+		gBufferPBRShader.SetFloat("uShaderType", 1.f);
+		debugCircle.DrawMesh();
+		gBufferPBRShader.SetTrans("model", trY);
+		gBufferPBRShader.SetFloat("uShaderType", 1.f);
+		debugCircle.DrawMesh();
+		gBufferPBRShader.SetTrans("model", trX);
+		gBufferPBRShader.SetFloat("uShaderType", 1.f);
+		debugCircle.DrawMesh();
+		gBufferPBRShader.SetTrans("model", trS);
+		gBufferPBRShader.SetFloat("uShaderType", 1.f);
+		debugCircle.DrawMesh();
+		//
 		//Draw cube
 		gBufferPBRShader.Disuse();
 
@@ -437,10 +481,10 @@ int main() {
 		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(10.f, 10.f, 10.f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
 		cube.DrawMesh();
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
-		//depthMapShader.SetTrans("model", model);
-		//ourModel.PBRDraw(depthMapShader, backpackMat);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		depthMapShader.SetTrans("model", model);
+		ourModel.PBRDraw(depthMapShader, backpackMat);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
@@ -483,33 +527,33 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		light.color = glm::vec3(1.f, 1.f, 1.f);
-		light.SetUniform(&deferredPBRShaderCartoon, 0);
-		light2.SetUniform(&deferredPBRShaderCartoon, 1);
+		light.SetUniform(&deferredPBRShader, 0);
+		light2.SetUniform(&deferredPBRShader, 1);
 
-		spotLight.SetUniform(&deferredPBRShaderCartoon, 0);
-		dirLight.SetUniform(&deferredPBRShaderCartoon, 0);
-		dirLight.SetShaderMtrx(&deferredPBRShaderCartoon, 0);
+		spotLight.SetUniform(&deferredPBRShader, 0);
+		dirLight.SetUniform(&deferredPBRShader, 0);
+		dirLight.SetShaderMtrx(&deferredPBRShader, 0);
 		//testIrradiance.RenderCube(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx());
 		cubeMap.Render(&skyboxShader, glm::mat4(glm::mat3(cam.GetVieMtx())), cam.GetPerspMtx()); 
 
-		deferredPBRShaderCartoon.Use();
-		deferredPBRShaderCartoon.SetVec3("lightAmbience", Light::ambientStrength);
+		deferredPBRShader.Use();
+		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
 
-		deferredPBRShaderCartoon.SetTrans("view", cam.CalculateViewMtx());
-		deferredPBRShaderCartoon.SetInt("pointLightNo", 0);
-		deferredPBRShaderCartoon.SetInt("dirLightNo", 1);
-		deferredPBRShaderCartoon.SetInt("spotLightNo", 0);
+		deferredPBRShader.SetTrans("view", cam.CalculateViewMtx());
+		deferredPBRShader.SetInt("pointLightNo", 0);
+		deferredPBRShader.SetInt("dirLightNo", 1);
+		deferredPBRShader.SetInt("spotLightNo", 0);
 
 		gBuffer.UseGTextures();
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, testIrradiance.RetrieveID());
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, depthBuffer.RetrieveBuffer());
-		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
-		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
-		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2
-		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gReflect"), 3);
-		glUniform1i(glGetUniformLocation(deferredPBRShaderCartoon.ID, "gMaterial"), 4);
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gReflect"), 3);
+		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gMaterial"), 4);
 
 		//material.SetUniform(&deferredLightShader);
 		
@@ -519,6 +563,31 @@ int main() {
 		glBindVertexArray(frameBuffer.vaoId);
 		glDrawElements(GL_TRIANGLE_STRIP, frameBuffer.drawCount, GL_UNSIGNED_SHORT, NULL);
 		glDisable(GL_BLEND);
+		deferredPBRShader.Disuse();
+
+
+
+		//Draw pixels with different shader ontop of frame generated in prev pass
+		//Use shader
+		defaultDraw.Use();
+		glDisable(GL_DEPTH_TEST);
+		gBuffer.UseGTextures();
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, testIrradiance.RetrieveID());
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, depthBuffer.RetrieveBuffer());
+		glUniform1i(glGetUniformLocation(defaultDraw.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
+		glUniform1i(glGetUniformLocation(defaultDraw.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
+		glUniform1i(glGetUniformLocation(defaultDraw.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2
+		glUniform1i(glGetUniformLocation(defaultDraw.ID, "gReflect"), 3);
+		glUniform1i(glGetUniformLocation(defaultDraw.ID, "gMaterial"), 4);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBindVertexArray(frameBuffer.vaoId);
+		glDrawElements(GL_TRIANGLE_STRIP, frameBuffer.drawCount, GL_UNSIGNED_SHORT, NULL);
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -527,6 +596,7 @@ int main() {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		glBlitFramebuffer(0, 0, 1600, 900, 0, 0, 1600, 900, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		//Render Light
 		//glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo); // back to default
