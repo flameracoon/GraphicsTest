@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\OpenGL\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\OpenGL\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)\Include;$(IncludePath)</IncludePath>
@@ -112,14 +112,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalUsingDirectories>%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -176,6 +173,7 @@
     <ClInclude Include="EnvOne.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GraphicsDebuffer.h" />
+    <ClInclude Include="GraphicsManager.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
@@ -185,8 +183,6 @@
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Assets\Shader\AnimationTestShader\AnimationTestShader.fs" />
-    <None Include="..\Assets\Shader\AnimationTestShader\AnimationTestShader.vs" />
     <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.fs" />
     <None Include="..\Assets\Shader\DebugDepthMap\DebugDepthMap.vs" />
     <None Include="..\Assets\Shader\DeferredLight\DeferredLight.fs" />

@@ -326,7 +326,7 @@ int main() {
 	irradianceBuffer.InitializeFBO(32.f, 32.f);
 	glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
 	glBindFramebuffer(GL_FRAMEBUFFER, irradianceBuffer.fbo);
-	testIrradiance.Render(&irradianceShader, cubeMap);
+	testIrradiance.Render(&iradianceShader, cubeMap);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	frameBuffer.shader = &frameBufferShader;
