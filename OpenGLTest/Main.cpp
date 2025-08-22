@@ -280,8 +280,17 @@ int main() {
 	Shader depthMapShader("../Assets/Shader/DepthMap/DepthMap.vs", "../Assets/Shader/DepthMap/DepthMap.fs");
 	Shader iradianceShader("../Assets/Shader/IradianceShader/IradianceShader.vs", "../Assets/Shader/IradianceShader/IradianceShader.fs");
 	Shader defaultDraw("../Assets/Shader/DefaultDraw/DefaultDraw.vs", "../Assets/Shader/DefaultDraw/DefaultDraw.fs");
+	Shader animationTestShader("../Assets/Shader/AnimationTestShader/AnimationTestShader.vs", "../Assets/Shader/AnimationTestShader/AnimationTestShader.fs");
 	//Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	Model ourModel(std::string{ "../Assets/FbxTest/backpack.fbx" }.c_str());
+
+	/*----------------------------------------------ANIMATION STUFF-------------------------------------------------**/
+//Model dragonModel(std::string{ "../Assets/dragon/Dragon 2.5_fbx.fbx"}.c_str());
+//Model dragonAnimatedModel(std::string{ "../Assets/dragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx" }.c_str());
+
+//dragonModel.animations = dragonAnimatedModel.animations;
+/*----------------------------------------------------------------------------------------------------------*/
+	Model mechaModel(std::string{ "../Assets/mecha/Neck_Mech_Walker_by_3DHaupt.fbx" }.c_str());
 
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
@@ -297,6 +306,27 @@ int main() {
 	Texture bpRoughTex("../Assets/backpack/roughness.jpg", "roughness");
 	Texture bpAoTex("../Assets/backpack/ao.jpg", "ao");
 	PBRMaterial backpackMat{ &bpDiffTex,&bpSpecTex,&bpRoughTex ,&bpAoTex ,&bpNormTex };
+
+	/*----------------------------------SEAN STUFF----------------------------------------*/
+
+	Texture dragonDiffTex("../Assets/dragon/textures/Dragon_ground_color.jpg", "diffuse");
+	Texture dragonNormTex("../Assets/dragon/textures/Dragon_Nor.jpg", "normal");
+	Texture dragonSpecTex("../Assets/backpack/specular.jpg", "metallic");
+	Texture dragonRoughTex("../Assets/dragon/textures/Dragon_Bump_Col2.jpg", "roughness");
+	Texture dragonAoTex("../Assets/backpack/ao.jpg", "ao");
+	PBRMaterial dragonMat{ &dragonDiffTex,&bpSpecTex,&dragonRoughTex ,&bpAoTex ,&dragonNormTex };
+
+	Texture mechaDiffTex("../Assets/mecha/textures/walker_color.jpg", "diffuse");
+	Texture mechaNormTex("../Assets/mecha/textures/walker_nmap.jpg", "normal");
+	Texture mechaSpecTex("../Assets/mecha/ref.jpg", "metallic");
+	Texture mechaRoughTex("../Assets/mecha/textures/walker_rough.jpg", "roughness");
+	Texture mechaAoTex("../Assets/backpack/ao.jpg", "ao");
+	PBRMaterial mechaMat{ &mechaDiffTex,&mechaSpecTex,&mechaRoughTex ,&mechaAoTex ,&mechaNormTex };
+
+	///Animation Setup
+	//AnimatedEntity dragonTest(&dragonModel);
+	//dragonTest.PlayAnimation(0);
+
 	//Assign backpatMat
 	Light light;
 	Light light2;
@@ -383,6 +413,25 @@ int main() {
 
 		//glCullFace(GL_BACK);
 
+		///*----------------------ANIMATION STUFF------------------*/
+		//material.SetUniform(&animationTestShader);
+		//animationTestShader.Use();
+
+		//animationTestShader.SetMat4("projection", cam.CalculatePerspMtx());
+		//animationTestShader.SetMat4("view", cam.CalculateViewMtx());
+		//animationTestShader.SetVec3("cameraPosition", cam.position);
+		//glm::mat4 model = glm::mat4(1.0f);
+		//model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		//animationTestShader.SetMat4("model", model);
+		//glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
+		//animationTestShader.SetInt("texture_diffuse1", 0);
+		//glBindTexture(GL_TEXTURE_2D, dragonMat.albedo->RetrieveTexture());
+		/////
+		////dragonTest.Update(deltaTime);
+		////dragonTest.Update(deltaTime, model);
+		////dragonTest.Draw(animationTestShader,dragonMat);
+		/////
+		//animationTestShader.Disuse();
 
 		////Do deferred shading
 		gBuffer.BindGBuffer();
