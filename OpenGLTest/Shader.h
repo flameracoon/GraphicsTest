@@ -248,5 +248,9 @@ public:
 	void SetFloat(const std::string& name, float value)  {
 		glUniform1f(GetLocation(name), value);
 	}
+
+	void SetMat4(const std::string& name, const glm::mat4& value) {
+		glUniformMatrix4fv(GetLocation(name), 1, GL_FALSE, glm::value_ptr(value));
+	}
 };
 #endif // ! SHADER_H
