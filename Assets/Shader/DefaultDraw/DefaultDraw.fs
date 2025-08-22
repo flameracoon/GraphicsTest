@@ -17,9 +17,9 @@ float toonScaleFactor=2.f;
 void main()
 {   
     
-    vec4 testColor = texture(gAlbedoSpec, TexCoords);
     vec3 newMat=vec3(texture(gMaterial, TexCoords));
     if(newMat.b>0.f){
+       vec4 testColor = texture(gAlbedoSpec, TexCoords);
        FragColor = vec4(0.0,1.0,0.0, 1.0);
     }
    // FragColor = vec4(1.0,1.0,1.0, 1.0);
