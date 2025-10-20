@@ -17,7 +17,9 @@ public:
 	float near{0.05f};         // Near clipping plane
 	float far{200.f};          // Far clipping plane
 	glm::vec3 position; // Current position of the camera in 3D space
+	glm::vec3 rotation; // Current position of the camera in 3D space
 	glm::vec2 size{ 1600.f,900.f };
+	glm::vec3 direction;
 private:
 	glm::vec3 target;   // Target point that the camera is looking at
 	glm::mat4 viewMtx;

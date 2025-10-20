@@ -151,6 +151,7 @@
     <ClCompile Include="EnvOne.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="GraphicsManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />

@@ -174,3 +174,7 @@ void IrradianceMap::RenderCube(Shader* shader, glm::mat4 const& view, glm::mat4 
     glDepthMask(GL_TRUE);
     shader->Disuse();
 }
+
+void DepthCubeMap::InitializeMap() {
+    //Initialize depth cube map
+}

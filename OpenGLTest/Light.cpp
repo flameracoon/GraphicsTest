@@ -44,6 +44,11 @@ void Light::SetUniform(Shader* shader,size_t number) {
     s.str("");
     s << "light[" << number << "].radius";
     shader->SetFloat(s.str(), CaluclateRadius(this->color,linear,quadratic));
+
+    s.str("");
+    s << "light[" << number << "].intensity";
+    shader->SetFloat(s.str(), this->intensity);
+
     shader->Disuse();
 }
 

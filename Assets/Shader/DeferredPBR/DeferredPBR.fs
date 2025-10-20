@@ -24,6 +24,7 @@ struct Light
     float linear;
     float quadratic;
     float radius;
+    float intensity;
 };
 struct SpotLight 
 {
@@ -126,7 +127,7 @@ vec3 schlickFresnel(float lDotH)
 
 vec3 microfacetModel(vec3 position, vec3 n,vec3 color,float roughness,int i) 
 {  
-    vec3 lightI = light[i].color;
+    vec3 lightI = light[i].color*light[i].intensity;
     vec3 lightPositionInView = (view * vec4(light[i].position, 1.0f)).xyz;
 
     vec3 l = lightPositionInView - position;

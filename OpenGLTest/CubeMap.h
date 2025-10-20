@@ -37,3 +37,8 @@ class IrradianceMap :public CubeMap {
 		void RenderCube(Shader*, glm::mat4 const& view, glm::mat4 const& projection);
 
 };
+
+class DepthCubeMap :public CubeMap {
+public:
+	void InitializeMap();
+};

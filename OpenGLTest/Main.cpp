@@ -187,11 +187,11 @@ bool mouseCon = false;;
 void mouseButtonCallback(GLFWwindow* pWindow, int button, int action, int mods)
 {
 	// Placeholder for mouse button actions
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
 	{
 		mouseCon = true;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
 	{
 		// Left mouse button released
 		mouseCon = false;
@@ -215,6 +215,7 @@ void cursorPosCallback(GLFWwindow* pWindow, double xpos, double ypos)
 void scrollCallback(GLFWwindow* pWindow, double xoffset, double yoffset)
 {
 	cam.onScroll(xoffset, yoffset);
+	//std::cout << yoffset << '\n';
 
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -283,14 +284,15 @@ int main() {
 	Shader animationTestShader("../Assets/Shader/AnimationTestShader/AnimationTestShader.vs", "../Assets/Shader/AnimationTestShader/AnimationTestShader.fs");
 	//Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	Model ourModel(std::string{ "../Assets/FbxTest/backpack.fbx" }.c_str());
-
+	//Test model
+	Model testBox(std::string{ "../Assets/TestBox/Test Block.fbx" }.c_str());
 	/*----------------------------------------------ANIMATION STUFF-------------------------------------------------**/
 //Model dragonModel(std::string{ "../Assets/dragon/Dragon 2.5_fbx.fbx"}.c_str());
 //Model dragonAnimatedModel(std::string{ "../Assets/dragon/Dragon_Baked_Actions_fbx_7.4_binary.fbx" }.c_str());
 
 //dragonModel.animations = dragonAnimatedModel.animations;
 /*----------------------------------------------------------------------------------------------------------*/
-	Model mechaModel(std::string{ "../Assets/mecha/Neck_Mech_Walker_by_3DHaupt.fbx" }.c_str());
+	//Model mechaModel(std::string{ "../Assets/mecha/Neck_Mech_Walker_by_3DHaupt.fbx" }.c_str());
 
 	//Tmp vertices
 		// set up vertex data (and buffer(s)) and configure vertex attributes
@@ -307,6 +309,15 @@ int main() {
 	Texture bpAoTex("../Assets/backpack/ao.jpg", "ao");
 	PBRMaterial backpackMat{ &bpDiffTex,&bpSpecTex,&bpRoughTex ,&bpAoTex ,&bpNormTex };
 
+	//Create test box material
+	//stbi_set_flip_vertically_on_load(true);
+	Texture tbDiffTex("../Assets/TestTexture/Test Block_lambert1_BaseColor.png", "diffuse1");
+	Texture tbNormTex("../Assets/TestTexture/Test Block_lambert1_Height.png", "normal1");
+	Texture tbSpecTex("../Assets/TestTexture/Test Block_lambert1_Metallic.png", "metallic1");
+	Texture tbRoughTex("../Assets/TestTexture/Test Block_lambert1_Roughness.png", "roughness1");
+	Texture tbAoTex("../Assets/TestTexture/AmbinetOcculsionOlambert1.png", "ao1");
+	PBRMaterial testBoxMat{ &tbDiffTex,&tbSpecTex,&tbRoughTex ,&tbAoTex ,&tbNormTex };
+	//stbi_set_flip_vertically_on_load(false);
 	/*----------------------------------SEAN STUFF----------------------------------------*/
 
 	Texture dragonDiffTex("../Assets/dragon/textures/Dragon_ground_color.jpg", "diffuse");
@@ -398,9 +409,10 @@ int main() {
 		ImGui::Text("Use the slider to move the model:");
 
 		ImGui::SliderFloat3("Light Position", &light.position[0], -10.f, 10.f); // vec3 slider
+		ImGui::SliderFloat("Light Intensity", &light.intensity, 0.f, 5000.f); // vec3 slider
+
 		ImGui::SliderFloat3("Light 2 Position", &spotLight.position[0], -10.f, 10.f); // vec3 slider
 		ImGui::SliderFloat3("Light Direction", &dirLight.direction[0], -10.f, 10.f); // vec3 slider
-
 		ImGui::SliderFloat3("Light Color", &spotLight.color[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Ambient", &spotLight.ambientStrength[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Diffuse", &spotLight.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
@@ -408,6 +420,20 @@ int main() {
 		ImGui::SliderFloat3("ModelPos Specular", &modelPos[0], -1600.f, 1600.f); // vec3 slider
 		ImGui::SliderFloat3("CameraPos", &cameraPos[0], -1600.0f, 1600.0f); // vec3 slider
 		ImGui::SliderFloat("Material", &material.reflectivity, 0.f, 1.f); // vec3 slider
+		const float cameraSpeed = 0.05f; // adjust accordingly
+		float sprintMultiplier = 1.f;
+		if (ImGui::IsKeyDown(ImGuiKey_W)) {
+			cam.position += sprintMultiplier * cameraSpeed * cam.direction;
+		}
+		if (ImGui::IsKeyDown(ImGuiKey_S)) {
+			cam.position -= sprintMultiplier * cameraSpeed * cam.direction;
+		}
+		if (ImGui::IsKeyDown(ImGuiKey_A)) {
+			cam.position -= sprintMultiplier * cameraSpeed * glm::normalize(glm::cross(cam.direction, glm::vec3{ 0.0f, 1.0f, 0.0f }));
+		}
+		if (ImGui::IsKeyDown(ImGuiKey_D)) {
+			cam.position += sprintMultiplier * cameraSpeed * glm::normalize(glm::cross(cam.direction, glm::vec3{ 0.0f, 1.0f, 0.0f }));
+		}
 
 		ImGui::End();
 
@@ -461,31 +487,42 @@ int main() {
 		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
-
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 		//glDisable(GL_BLEND);
 
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
-		gBufferPBRShader.SetTrans("model", model);
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
+		//gBufferPBRShader.SetTrans("model", model);
 
 
-		glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
-		gBufferPBRShader.SetInt("texture_diffuse1", 0);
-		glBindTexture(GL_TEXTURE_2D, backpackMat.albedo->RetrieveTexture());
-		cube.DrawMesh();
+		//glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
+		//gBufferPBRShader.SetInt("texture_diffuse1", 0);
+		//glBindTexture(GL_TEXTURE_2D, backpackMat.albedo->RetrieveTexture());
+		//cube.DrawMesh();
 
 
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
-		gBufferPBRShader.SetTrans("model", model);
-		gBufferPBRShader.SetFloat("uShaderType", 1.f);
-		debugCube.DrawMesh();
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
+		//gBufferPBRShader.SetTrans("model", model);
+		//gBufferPBRShader.SetFloat("uShaderType", 1.f);
+		//debugCube.DrawMesh();
+
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
+		//gBufferPBRShader.SetTrans("model", model);
+		//gBufferPBRShader.SetFloat("uShaderType", 0.f);
+		//testBox.PBRDraw(gBufferPBRShader, backpackMat);
 
 
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		//gBufferPBRShader.SetTrans("model", model);
+		//gBufferPBRShader.SetFloat("uShaderType", 0.f);
+		//mechaModel.PBRDraw(gBufferPBRShader, testBoxMat);
+		//Draw debug sphere, needs rework
 		model = glm::mat4(1.0f);
 		glm::mat4 trY = glm::mat4(1.0f), trX = glm::mat4(1.0f);
 		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
@@ -526,10 +563,10 @@ int main() {
 		depthMapShader.Use();
 		glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer.depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(10.f, 10.f, 10.f));	// it's a bit too big for our scene, so scale it down
-		depthMapShader.SetTrans("model", model);
-		cube.DrawMesh();
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(10.f, 10.f, 10.f));	// it's a bit too big for our scene, so scale it down
+		//depthMapShader.SetTrans("model", model);
+		//cube.DrawMesh();
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
@@ -539,6 +576,7 @@ int main() {
 		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
 		ourModel.PBRDraw(depthMapShader, backpackMat);
+
 
 
 
@@ -589,8 +627,8 @@ int main() {
 		deferredPBRShader.SetVec3("lightAmbience", Light::ambientStrength);
 
 		deferredPBRShader.SetTrans("view", cam.CalculateViewMtx());
-		deferredPBRShader.SetInt("pointLightNo", 0);
-		deferredPBRShader.SetInt("dirLightNo", 1);
+		deferredPBRShader.SetInt("pointLightNo", 1);
+		deferredPBRShader.SetInt("dirLightNo", 0);
 		deferredPBRShader.SetInt("spotLightNo", 0);
 
 		gBuffer.UseGTextures();

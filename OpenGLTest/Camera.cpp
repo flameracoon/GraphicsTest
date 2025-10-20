@@ -1,9 +1,13 @@
 #include "Camera.h"
 
 glm::mat4 Camera::CalculateViewMtx() {
+   /* direction.x = cos(glm::radians(rotation.y)) * cos(glm::radians(rotation.x));
+    direction.y = sin(glm::radians(rotation.x));
+    direction.z = sin(glm::radians(rotation.y)) * cos(glm::radians(rotation.x));
+    direction = glm::normalize(direction);*/
     target = { 0.f,0.f,0.f };
-	viewMtx= glm::lookAt(position, target, glm::vec3{ 0.0f, 1.0f, 0.0f });
-	return viewMtx;
+    viewMtx = glm::lookAt(position, target, glm::vec3{ 0.0f, 1.0f, 0.0f });
+    return viewMtx;
 }
 glm::mat4 Camera::GetVieMtx() { return viewMtx;; }
 
@@ -15,33 +19,45 @@ glm::mat4 Camera::GetPerspMtx() { return perspMtx;; }
 
 // Handles cursor movement to adjust camera orientation
 void Camera::onCursor(double xoffset, double yoffset)
-{
+{   // std::cout << "Editor type shit sir\n";
+//    static const float PI05 = glm::pi<float>() / 2.0f; // Half of pi for clamping
+//    // Sensitivity
+//    static const float sensitivityX = 0.15f;
+//    static const float sensitivityY = 0.15f;
+//    //Do FPS rotation
+//// Yaw (rotation around Y-axis)
+//    rotation.y += static_cast<float>(xoffset) * sensitivityX;
+//
+//    // Pitch (rotation around X-axis) - Invert to match mouse movement
+//    rotation.x -= static_cast<float>(yoffset) * sensitivityY;
+//    rotation.x = glm::clamp(rotation.x, -89.f, 89.f);
+
     const float PI05 = glm::pi<float>() / 2.0f; // Half of pi for clamping
 
-        // Calculate spherical coordinates for orbiting movement
-        const float r = glm::sqrt(position.x * position.x +
-            position.y * position.y + position.z * position.z);
-        float alpha = glm::asin(position.y / r); // Vertical angle
-        float betta = std::atan2f(position.x, position.z); // Horizontal angle
+    // Calculate spherical coordinates for orbiting movement
+    const float r = glm::sqrt(position.x * position.x +
+        position.y * position.y + position.z * position.z);
+    float alpha = glm::asin(position.y / r); // Vertical angle
+    float betta = std::atan2f(position.x, position.z); // Horizontal angle
 
-        // Adjust angles based on cursor offset
-        if (yoffset < 0.0)
-            alpha += -0.02f;
-        else if (yoffset > 0.0)
-            alpha += 0.02f;
+    // Adjust angles based on cursor offset
+    if (yoffset < 0.0)
+        alpha += -0.02f;
+    else if (yoffset > 0.0)
+        alpha += 0.02f;
 
-        if (xoffset < 0.0)
-            betta += 0.05f;
-        else if (xoffset > 0.0)
-            betta += -0.05f;
+    if (xoffset < 0.0)
+        betta += 0.05f;
+    else if (xoffset > 0.0)
+        betta += -0.05f;
 
-        // Clamp vertical angle
-        alpha = glm::clamp(alpha, -PI05 + 0.01f, PI05 - 0.01f);
+    // Clamp vertical angle
+    alpha = glm::clamp(alpha, -PI05 + 0.01f, PI05 - 0.01f);
 
-        // Update position based on spherical coordinates
-        position.x = r * glm::cos(alpha) * glm::sin(betta);
-        position.y = r * glm::sin(alpha);
-        position.z = r * glm::cos(alpha) * glm::cos(betta);
+    // Update position based on spherical coordinates
+    position.x = r * glm::cos(alpha) * glm::sin(betta);
+    position.y = r * glm::sin(alpha);
+    position.z = r * glm::cos(alpha) * glm::cos(betta);
     
 }
 

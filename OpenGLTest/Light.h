@@ -21,6 +21,7 @@ struct Light {
 	virtual void SetShaderMtrx(Shader* shader, size_t number);
 	float linear{0.09f};
 	float quadratic{ 0.032f };
+	float intensity{ 1.f };
 };
 
 struct DirectionalLight:public Light {

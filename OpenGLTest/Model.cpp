@@ -6,6 +6,8 @@ Mesh::Mesh(std::vector<Vertex> newVert, std::vector<unsigned int> newIndices, st
 	,indices{newIndices}
 	,textures{newTextures}
 {
+
+    //std::cout <<"VERTEX SIZE IS " << this->vertices.size() << '\n';
     //set up mesh based on data
     SetupMesh();
 }
