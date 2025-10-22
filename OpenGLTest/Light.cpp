@@ -1,7 +1,7 @@
 #include "Light.h"
 #include <sstream>
 
-glm::vec3 Light::ambientStrength{ 0.1f };
+glm::vec3 Light::ambientStrength{ 0.005f };
 
  
 float CaluclateRadius(glm::vec3 color, float linear, float quadratic) {

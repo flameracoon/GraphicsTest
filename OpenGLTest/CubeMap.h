@@ -41,4 +41,6 @@ class IrradianceMap :public CubeMap {
 class DepthCubeMap :public CubeMap {
 public:
 	void InitializeMap();
+	void FillMap(glm::vec3& lightPos);
+	glm::mat4 shadowTransforms[6];
 };

@@ -414,7 +414,7 @@ int main() {
 		ImGui::SliderFloat3("Light 2 Position", &spotLight.position[0], -10.f, 10.f); // vec3 slider
 		ImGui::SliderFloat3("Light Direction", &dirLight.direction[0], -10.f, 10.f); // vec3 slider
 		ImGui::SliderFloat3("Light Color", &spotLight.color[0], -10.0f, 10.0f); // vec3 slider
-		ImGui::SliderFloat3("Light Ambient", &spotLight.ambientStrength[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Ambient", &Light::ambientStrength[0], -10.0f, 1000000.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Diffuse", &spotLight.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Specular", &spotLight.specularStrength[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("ModelPos Specular", &modelPos[0], -1600.f, 1600.f); // vec3 slider

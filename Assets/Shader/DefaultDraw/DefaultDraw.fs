@@ -18,10 +18,14 @@ void main()
 {   
     
     vec3 newMat=vec3(texture(gMaterial, TexCoords));
-    if(newMat.b>0.f){
-       vec4 testColor = texture(gAlbedoSpec, TexCoords);
-       FragColor = vec4(0.0,1.0,0.0, 1.0);
-    }
+    // Example: take the blue channel
+    int val = int(newMat.b)%2;
+    int outputVal = (val == 0) ? 1 : 0;
+
+    // Cast back to float for FragColor
+    float outFloat = float(outputVal);
+
+    FragColor = vec4(0.0, outFloat, 0.0, newMat.b);
    // FragColor = vec4(1.0,1.0,1.0, 1.0);
     //Use re
 }

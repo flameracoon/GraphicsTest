@@ -317,7 +317,7 @@ void main()
     vec3 kD = 1.0 - schlickFresnel(max(dot(normalMap, normalize(-positionMap)), 0.0));
     kD *= 1.0 - specularColor;	  
     vec3 diffuse      = kD*texture(cubeTexture, normalMap).rgb * diffuseColor;
-    vec3 newLight=diffuse*lightAmbience*newMat.r;
+    vec3 newLight=diffuseColor*lightAmbience*newMat.r;
 
     if(dirLightNo!=0){
         shadow=ShadowCalculation(directionalLight[0].shadowMtx*vec4(positionMap, 1.0),normalMap,directionalLight[0].direction);
