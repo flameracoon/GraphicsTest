@@ -43,4 +43,8 @@ public:
 	void InitializeMap();
 	void FillMap(glm::vec3& lightPos);
 	glm::mat4 shadowTransforms[6];
+	float near_plane = 1.0f;
+	float far_plane = 25.0f;
+	GLuint GetFBO() { return VBO;; };
+	void SaveDepthCubeMap();
 };

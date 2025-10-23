@@ -180,7 +180,7 @@ void Sphere::CreateMesh() {
     //Create indices
     std::vector<short> indices;
     int k1, k2;
-    for (int i = 0; i < stackCount; ++i)
+    for (int i = 0; i <= stackCount; ++i)
     {
         k1 = i * (sectorCount + 1);     // beginning of current stack
         k2 = k1 + sectorCount + 1;      // beginning of next stack

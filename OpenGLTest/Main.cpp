@@ -282,6 +282,9 @@ int main() {
 	Shader iradianceShader("../Assets/Shader/IradianceShader/IradianceShader.vs", "../Assets/Shader/IradianceShader/IradianceShader.fs");
 	Shader defaultDraw("../Assets/Shader/DefaultDraw/DefaultDraw.vs", "../Assets/Shader/DefaultDraw/DefaultDraw.fs");
 	Shader animationTestShader("../Assets/Shader/AnimationTestShader/AnimationTestShader.vs", "../Assets/Shader/AnimationTestShader/AnimationTestShader.fs");
+	//Point shadow depth map shader
+	Shader pointShadowShader("../Assets/Shader/PointShadowShader/PointShadowShader.vs", "../Assets/Shader/PointShadowShader/PointShadowShader.fs", "../Assets/Shader/PointShadowShader/PointShadowShader.gs");
+
 	//Model ourModel(std::string{ "../Assets/backpack/backpack.obj" }.c_str());
 	Model ourModel(std::string{ "../Assets/FbxTest/backpack.fbx" }.c_str());
 	//Test model
@@ -350,6 +353,9 @@ int main() {
 		{ "../Assets/SkyBox/night_negx.png", "../Assets/SkyBox/night_posx.png",
 		  "../Assets/SkyBox/night_posy.png", "../Assets/SkyBox/night_negy.png",
 		  "../Assets/SkyBox/night_posz.png", "../Assets/SkyBox/night_negz.png" });
+	//Try creating depth map shader
+	DepthCubeMap depthCubeMap;
+	depthCubeMap.InitializeMap();
 
 	float degree = 0.f;
 	DebugInit(window);
@@ -408,12 +414,12 @@ int main() {
 
 		ImGui::Text("Use the slider to move the model:");
 
-		ImGui::SliderFloat3("Light Position", &light.position[0], -10.f, 10.f); // vec3 slider
+		ImGui::SliderFloat3("Light Position", &light.position[0], -50.f, 50.f); // vec3 slider
 		ImGui::SliderFloat("Light Intensity", &light.intensity, 0.f, 5000.f); // vec3 slider
 
 		ImGui::SliderFloat3("Light 2 Position", &spotLight.position[0], -10.f, 10.f); // vec3 slider
 		ImGui::SliderFloat3("Light Direction", &dirLight.direction[0], -10.f, 10.f); // vec3 slider
-		ImGui::SliderFloat3("Light Color", &spotLight.color[0], -10.0f, 10.0f); // vec3 slider
+		ImGui::SliderFloat3("Light Color", &light.color[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Ambient", &Light::ambientStrength[0], -10.0f, 1000000.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Diffuse", &spotLight.diffuseStrength[0], -10.0f, 10.0f); // vec3 slider
 		ImGui::SliderFloat3("Light Specular", &spotLight.specularStrength[0], -10.0f, 10.0f); // vec3 slider
@@ -493,15 +499,16 @@ int main() {
 		ourModel.PBRDraw(gBufferPBRShader, backpackMat);
 		//glDisable(GL_BLEND);
 
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
-		//gBufferPBRShader.SetTrans("model", model);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(15.f, 15.f, 20.f));	// it's a bit too big for our scene, so scale it down
+		gBufferPBRShader.SetTrans("model", model);
 
 
-		//glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
-		//gBufferPBRShader.SetInt("texture_diffuse1", 0);
-		//glBindTexture(GL_TEXTURE_2D, backpackMat.albedo->RetrieveTexture());
-		//cube.DrawMesh();
+		glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
+		gBufferPBRShader.SetInt("texture_diffuse1", 0);
+		glBindTexture(GL_TEXTURE_2D, backpackMat.albedo->RetrieveTexture());
+		gBufferPBRShader.SetFloat("uShaderType", 0.f);
+		sphere.DrawMesh();
 
 
 		//model = glm::mat4(1.0f);
@@ -515,7 +522,7 @@ int main() {
 		//gBufferPBRShader.SetTrans("model", model);
 		//gBufferPBRShader.SetFloat("uShaderType", 0.f);
 		//testBox.PBRDraw(gBufferPBRShader, backpackMat);
-
+		
 
 		//model = glm::mat4(1.0f);
 		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
@@ -576,24 +583,38 @@ int main() {
 		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
 		depthMapShader.SetTrans("model", model);
 		ourModel.PBRDraw(depthMapShader, backpackMat);
-
-
-
-
-
 		depthMapShader.Disuse();
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		//gBufferShader.Use();
-		//gBufferShader.SetTrans("projection", cam.CalculatePerspMtx()); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-		//gBufferShader.SetTrans("view", cam.CalculateViewMtx());
-		//gBufferShader.SetVec3("cameraPosition", cam.position);
-		//model = glm::mat4{ 1.f };
-		//model = glm::translate(model, {1.f,0.f,0.f}) * glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-		//gBufferShader.SetTrans("model", model);
-		//ourModel.Draw(gBufferShader);
-				// reset viewport
+		//Render to cube depth map
+		glViewport(0, 0, 1024.f, 1024.f);
+		glCullFace(GL_FRONT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthCubeMap.GetFBO());
+		glClear(GL_DEPTH_BUFFER_BIT);
+		pointShadowShader.Use();
+		depthCubeMap.FillMap(light.position);
+		for (unsigned int i = 0; i < 6; ++i) {
+			pointShadowShader.SetMat4("shadowMatrices[" + std::to_string(i) + "]", depthCubeMap.shadowTransforms[i]);
+		}
+		pointShadowShader.SetFloat("far_plane", depthCubeMap.far_plane);
+		pointShadowShader.SetVec3("lightPos", light.position);
+		
+		//Render objects
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		pointShadowShader.SetTrans("model", model);
+		ourModel.PBRDraw(pointShadowShader, backpackMat);
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		pointShadowShader.SetTrans("model", model);
+		ourModel.PBRDraw(pointShadowShader, backpackMat);
+		pointShadowShader.Disuse();
+
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		glViewport(0, 0, 1600.f, 900.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -636,6 +657,11 @@ int main() {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, testIrradiance.RetrieveID());
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, depthBuffer.RetrieveBuffer());
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap.RetrieveID());
+		deferredPBRShader.SetInt("depthMap", 7);
+		deferredPBRShader.SetFloat("far_plane", depthCubeMap.far_plane);
+
 		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gPosition"), 0);  // Bind to GL_TEXTURE0
 		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gNormal"), 1);    // Bind to GL_TEXTURE1
 		glUniform1i(glGetUniformLocation(deferredPBRShader.ID, "gAlbedoSpec"), 2); // Bind to GL_TEXTURE2

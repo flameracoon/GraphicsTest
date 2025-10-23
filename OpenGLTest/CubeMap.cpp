@@ -205,9 +205,8 @@ void DepthCubeMap::InitializeMap() {
 
 }
 void DepthCubeMap::FillMap(glm::vec3& lightPos) {
-    float near_plane = 1.0f;
-    float far_plane = 25.0f;
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)1024 / (float)1024, near_plane, far_plane);
+
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)1024.f / (float)1024.f, near_plane, far_plane);
     shadowTransforms[0] = (shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
     shadowTransforms[1] = (shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
     shadowTransforms[2] = (shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));

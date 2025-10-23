@@ -67,6 +67,10 @@ vec3 diffuseColor;
 float specularColor;
 float shadow=0.f;
 
+//Point light lighting
+layout(binding=7) uniform samplerCube depthMap;
+uniform float far_plane;
+float pointShadow=0.f;
 //Lighting
 const float PI = 3.14159265358979323846;
 
@@ -165,7 +169,8 @@ vec3 microfacetModel(vec3 position, vec3 n,vec3 color,float roughness,int i)
 
         // scale light by NdotL
 
-    return (kD*diffuseColor /PI + specBrdf) * lightI * nDotL;
+    return ((kD*diffuseColor /PI + specBrdf) * lightI * nDotL) * (1.0 - pointShadow);
+
         }
     return vec3(0.f);
 }
@@ -292,6 +297,32 @@ float ShadowCalculation(vec4 fragPosLightSpace,vec3 n,vec3 lightDir)
     return shd;
 }  
 
+vec3 gridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
+   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+float ShadowCalculationPoint(vec3 fragPosLightSpace,vec3 position,vec3 viewPos){
+     float currentDepth = length(fragPosLightSpace);
+    
+    float ps = 0.0;
+    float bias = 0.15;
+    int samples = 20;
+    float viewDistance = length(viewPos - position);
+    float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = texture(depthMap, fragPosLightSpace.xyz + gridSamplingDisk[i] * diskRadius).r;
+        closestDepth *= far_plane;   // undo mapping [0;1]
+        if(currentDepth - bias > closestDepth)
+            ps += 1.0;  // In shadow
+    }
+    ps /= float(samples);
+    return ps;
+}
 void main()
 {   
     
@@ -322,9 +353,11 @@ void main()
     if(dirLightNo!=0){
         shadow=ShadowCalculation(directionalLight[0].shadowMtx*vec4(positionMap, 1.0),normalMap,directionalLight[0].direction);
     }
-    
+    vec3 oldPos=positionMap;
     positionMap=vec3(view * vec4(positionMap, 1.0));
-
+    if(pointLightNo!=0){
+        pointShadow=ShadowCalculationPoint(vec4(oldPos, 1.0).xyz-light[0].position,oldPos,positionMap);
+    }
     for(int i=0;i<pointLightNo;i++){
         newLight+=microfacetModel(positionMap, normalMap,diffuseColor,newMat.g,i);
     }

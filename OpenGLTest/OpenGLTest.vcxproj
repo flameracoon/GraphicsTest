@@ -206,6 +206,9 @@
     <None Include="..\Assets\Shader\IradianceShader\IradianceShader.vs" />
     <None Include="..\Assets\Shader\LightShader\LightShader.fs" />
     <None Include="..\Assets\Shader\LightShader\LightShader.vs" />
+    <None Include="..\Assets\Shader\PointShadowShader\PointShadowShader.fs" />
+    <None Include="..\Assets\Shader\PointShadowShader\PointShadowShader.gs" />
+    <None Include="..\Assets\Shader\PointShadowShader\PointShadowShader.vs" />
     <None Include="..\Assets\Shader\SkyBoxShader\SkyBoxShader.fs" />
     <None Include="..\Assets\Shader\SkyBoxShader\SkyBoxShader.vs" />
   </ItemGroup>
