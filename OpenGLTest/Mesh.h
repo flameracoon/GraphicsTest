@@ -20,7 +20,7 @@ struct Cube :BasicMesh {
 };
 struct Sphere :BasicMesh {
 	int sectorCount{ 36 }, stackCount{ 18 };
-	float radius{25.f};
+	float radius{1.f};
 	void CreateMesh();
 	void DrawMesh();
 };

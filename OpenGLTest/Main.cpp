@@ -500,17 +500,16 @@ int main() {
 		//glDisable(GL_BLEND);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(15.f, 15.f, 20.f));	// it's a bit too big for our scene, so scale it down
+		model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(5.f, 5.f, 5.f));	// it's a bit too big for our scene, so scale it down
 		gBufferPBRShader.SetTrans("model", model);
 
-
+		glDisable(GL_CULL_FACE);
 		glActiveTexture(GL_TEXTURE0); // activate proper texture unit before binding
 		gBufferPBRShader.SetInt("texture_diffuse1", 0);
 		glBindTexture(GL_TEXTURE_2D, backpackMat.albedo->RetrieveTexture());
 		gBufferPBRShader.SetFloat("uShaderType", 0.f);
 		sphere.DrawMesh();
-
-
+		glEnable(GL_CULL_FACE);
 		//model = glm::mat4(1.0f);
 		//model = glm::translate(model, { 0.f,0.f,0.f }) * glm::scale(model, glm::vec3(20.f, 20.f, 20.f));	// it's a bit too big for our scene, so scale it down
 		//gBufferPBRShader.SetTrans("model", model);
