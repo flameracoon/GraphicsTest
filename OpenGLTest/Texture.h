@@ -85,6 +85,58 @@ public:
 		stbi_image_free(data);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+	Texture(const char* texturePath, std::string texName,bool test) : name{ texName }, texture{ 0 } {
+		//Set texture
+		glGenTextures(1, &texture);
+		//Bind textures
+		glBindTexture(GL_TEXTURE_2D, texture);
+		//Set texture parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		//Load texture
+		int nrChannels;
+		unsigned char* data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+		//Load texture
+		if (!data) {
+			std::cout << "FAILED TO LOAD TEXURE";
+		}
+
+		//Manipulate the data
+		for (int i{ 0 }; i < height; i++) {
+			for (int j{ 0 }; j < width; j++) {
+				unsigned char* pixelOffset = data + (j + width * i) * nrChannels;
+				pixelOffset[0] = 1.f;
+				pixelOffset[1] = 1.f;
+				pixelOffset[2] = 1.f;
+			}
+		}
+
+
+		std::cout << "Channel of [" << texName << "] is " << nrChannels << std::endl;
+		if (nrChannels == 3) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		}
+		else if (nrChannels == 4) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		}
+		else if (nrChannels == 1) {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_ONE);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+		}
+		glGenerateMipmap(GL_TEXTURE_2D);
+		//Free texture
+		stbi_image_free(data);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	Texture(std::string texName, unsigned char* data, int newWidth, int newHeight, int nrChannels)
 		:name{ texName }, width{ newWidth }, height{ newHeight } {
 

@@ -401,6 +401,7 @@ int main() {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.RetrieveID());
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	depthCubeMap.LoadDepthCubeMap("../Assets/test.dcm");
 	while (!glfwWindowShouldClose(window))
 	{
 		// Start ImGui frame
@@ -439,6 +440,9 @@ int main() {
 		}
 		if (ImGui::IsKeyDown(ImGuiKey_D)) {
 			cam.position += sprintMultiplier * cameraSpeed * glm::normalize(glm::cross(cam.direction, glm::vec3{ 0.0f, 1.0f, 0.0f }));
+		}
+		if (ImGui::IsKeyDown(ImGuiKey_0)) {
+			depthCubeMap.SaveDepthCubeMap("../Assets/test.dcm");
 		}
 
 		ImGui::End();
@@ -562,6 +566,36 @@ int main() {
 		//Draw cube
 		gBufferPBRShader.Disuse();
 
+
+		//Render to cube depth map
+		//glViewport(0, 0, 1024.f, 1024.f);
+		//glCullFace(GL_FRONT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, depthCubeMap.GetFBO());
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		//pointShadowShader.Use();
+		//depthCubeMap.FillMap(light.position);
+		//for (unsigned int i = 0; i < 6; ++i) {
+		//	pointShadowShader.SetMat4("shadowMatrices[" + std::to_string(i) + "]", depthCubeMap.shadowTransforms[i]);
+		//}
+		//pointShadowShader.SetFloat("far_plane", depthCubeMap.far_plane);
+		//pointShadowShader.SetVec3("lightPos", light.position);
+
+		////Render objects
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		//pointShadowShader.SetTrans("model", model);
+		//ourModel.PBRDraw(pointShadowShader, backpackMat);
+
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		//pointShadowShader.SetTrans("model", model);
+		//ourModel.PBRDraw(pointShadowShader, backpackMat);
+		//pointShadowShader.Disuse();
+
+		//glCullFace(GL_BACK);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
 		//Render to depth map
 		glViewport(0, 0, 1600.f, 900.f);
 		glCullFace(GL_FRONT);
@@ -586,33 +620,7 @@ int main() {
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		//Render to cube depth map
-		glViewport(0, 0, 1024.f, 1024.f);
-		glCullFace(GL_FRONT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthCubeMap.GetFBO());
-		glClear(GL_DEPTH_BUFFER_BIT);
-		pointShadowShader.Use();
-		depthCubeMap.FillMap(light.position);
-		for (unsigned int i = 0; i < 6; ++i) {
-			pointShadowShader.SetMat4("shadowMatrices[" + std::to_string(i) + "]", depthCubeMap.shadowTransforms[i]);
-		}
-		pointShadowShader.SetFloat("far_plane", depthCubeMap.far_plane);
-		pointShadowShader.SetVec3("lightPos", light.position);
-		
-		//Render objects
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, modelPos / 100.f) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
-		pointShadowShader.SetTrans("model", model);
-		ourModel.PBRDraw(pointShadowShader, backpackMat);
 
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, { 0.f,0.f,-40.f }) * glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
-		pointShadowShader.SetTrans("model", model);
-		ourModel.PBRDraw(pointShadowShader, backpackMat);
-		pointShadowShader.Disuse();
-
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glViewport(0, 0, 1600.f, 900.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

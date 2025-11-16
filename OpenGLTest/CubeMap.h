@@ -46,5 +46,7 @@ public:
 	float near_plane = 1.0f;
 	float far_plane = 25.0f;
 	GLuint GetFBO() { return VBO;; };
-	void SaveDepthCubeMap();
+	void SaveDepthCubeMap(std::string outputPath);
+	void LoadDepthCubeMap(std::string inputPath);
+
 };
